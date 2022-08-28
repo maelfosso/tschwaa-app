@@ -1,5 +1,6 @@
 import { LockClosedIcon } from '@heroicons/react/20/solid'
 import type { NextPage } from "next";
+import Link from 'next/link';
 
 const SignIn: NextPage = () => {
   return (
@@ -11,9 +12,11 @@ const SignIn: NextPage = () => {
           </h2>
           <p className='mt-2 text-center text-sm text-gray-600'>
             Or{' '}
-            <a href="#" className="font-medium text-indigo-600 hover:text-indigo-500">
-              create an account
-            </a>
+            <Link href="/auth/sign-up">
+              <a className="font-medium text-indigo-600 hover:text-indigo-500">
+                create an account
+              </a>
+            </Link>
             {' '} if you don't have one
           </p>
         </div>
