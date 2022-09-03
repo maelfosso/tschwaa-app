@@ -1,8 +1,33 @@
-import { LockClosedIcon } from '@heroicons/react/20/solid'
 import type { NextPage } from "next";
 import Link from 'next/link';
+import { useRouter } from "next/router";
+import React, { useState } from 'react';
+import { signUp } from "../../services/auth";
+import { AUTH_SIGN_IN } from "../../utils/constants";
 
 const SignUp: NextPage = () => {
+  const router = useRouter();
+  const [inputs, setInputs] = useState({
+    firstname: '',
+    lastname: '',
+    email: '',
+    phone: '',
+    password: ''
+  });
+  const [error, setSubmissionError] = useState<string>();
+
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    console.log('on-submit ', inputs);
+
+    const result = await signUp(inputs);
+    if (typeof result === "string") {
+      setSubmissionError(result);
+    } else {
+      router.push(AUTH_SIGN_IN);
+    }
+  }
+
   return (
     <div className="min-h-full flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
@@ -20,7 +45,11 @@ const SignUp: NextPage = () => {
             {' '} if you already have one
           </p>
         </div>
-        <form className="mt-8 space-y-6" action="#" method="POST">
+        <form className="mt-8 space-y-6" action="#" method="POST" onSubmit={onSubmit}>
+          { error && <div>
+              { error }
+            </div>
+          }
           <input type="hidden" name="remember" defaultValue="true" />
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
@@ -33,6 +62,7 @@ const SignUp: NextPage = () => {
                 type="text"
                 autoComplete="firstname"
                 required
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInputs({...inputs, firstname: e.target.value})}
                 className='appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm'
                 placeholder="Firstname"
               />
@@ -47,6 +77,7 @@ const SignUp: NextPage = () => {
                 type="text"
                 autoComplete="lastname"
                 required
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInputs({...inputs, lastname: e.target.value})}
                 className='appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm'
                 placeholder="Lastname"
               />
@@ -61,6 +92,7 @@ const SignUp: NextPage = () => {
                 type="email"
                 autoComplete="email"
                 required
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInputs({...inputs, email: e.target.value})}
                 className='appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm'
                 placeholder="Email address"
               />
@@ -75,6 +107,7 @@ const SignUp: NextPage = () => {
                 type="phone"
                 autoComplete="phone"
                 required
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInputs({...inputs, phone: e.target.value})}
                 className='appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm'
                 placeholder="Phone number"
               />
@@ -89,6 +122,7 @@ const SignUp: NextPage = () => {
                 type="password"
                 autoComplete="current-password"
                 required
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInputs({...inputs, password: e.target.value})}
                 className='appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm'
                 placeholder="Password"
               />
