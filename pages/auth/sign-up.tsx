@@ -1,13 +1,12 @@
 import type { NextPage } from "next";
 import Link from 'next/link';
-import { useRouter } from "next/router";
+import Router from "next/router";
 import React, { useState } from 'react';
 import { signUp } from "../../services/auth";
 import { AUTH_SIGN_IN, AUTH_SIGN_UP } from "../../utils/constants";
 import { SignUpInputs } from "../../utils/types";
 
 const SignUp: NextPage = () => {
-  const router = useRouter();
   const [inputs, setInputs] = useState<SignUpInputs>({
     firstname: '',
     lastname: '',
@@ -24,7 +23,7 @@ const SignUp: NextPage = () => {
     if (typeof result === "string") {
       setSubmissionError(result);
     } else {
-      router.push(AUTH_SIGN_IN);
+      Router.push(AUTH_SIGN_IN);
     }
   }
 

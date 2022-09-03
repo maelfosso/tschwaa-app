@@ -2,6 +2,7 @@ import { LockClosedIcon } from '@heroicons/react/20/solid'
 import type { NextPage } from "next";
 import { signIn } from 'next-auth/react';
 import Link from 'next/link';
+import Router from 'next/router';
 import { FormEventHandler, useState } from 'react';
 import { SignInInputs } from '../../utils/types';
 
@@ -21,12 +22,11 @@ const SignIn: NextPage = (): JSX.Element => {
       redirect: false
     });
     console.log('sign-in onSubit',  res);
-    // const result = await signIn(inputs);
-    // if (typeof result === "string") {
-    //   setSubmissionError(result);
-    // } else {
-    //   console.log('on-submit ', result);
-    // }
+    if (res?.ok) {
+      // there is an error
+    } else {
+      Router.replace("/");
+    }
   }
 
   return (
