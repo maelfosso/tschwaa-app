@@ -1,18 +1,19 @@
-import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
-import Router from "next/router";
-import { SignUpInputs } from "../utils/types";
-import { catchAxiosError, ErrorResponse } from "./error";
+import axios, { AxiosRequestConfig } from "axios";
+import { API_AUTH_SIGN_IN, API_AUTH_SIGN_UP } from "../utils/constants";
+import { SignInInputs, SignUpInputs } from "../utils/types";
+import { catchAxiosError } from "./error";
 
 export const signUp = async (inputs: SignUpInputs) => {
   const jsonInputs = JSON.stringify(inputs);
 
-  return await post<boolean>("/auth/signup", jsonInputs);
-  // const res: ErrorResponse | AxiosResponse<boolean, any> = 
-  // if ((res as ErrorResponse)) {
-  //   return (res as ErrorResponse).error;
-  // }
+  return await post<boolean>(API_AUTH_SIGN_UP, jsonInputs);
+}
 
-  // await Router.push('/auth/sig-in');
+export const signIn = async (inputs: SignInInputs) => {
+  console.log('auth - signIn ', inputs);
+  const jsonInputs = JSON.stringify(inputs);
+
+  return await post<any>(API_AUTH_SIGN_IN, jsonInputs);
 }
 
 const baseConfig: AxiosRequestConfig = {
@@ -26,6 +27,7 @@ const baseConfig: AxiosRequestConfig = {
 async function post<T>(url: string, inputs: URLSearchParams | string) {
   try {
     const { data } = await axios.post<T>(url, inputs, baseConfig);
+    console.log('post T ', data);
     return data as T;
   } catch (error) {
     console.log('post error ', error);

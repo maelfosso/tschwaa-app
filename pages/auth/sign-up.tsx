@@ -3,11 +3,12 @@ import Link from 'next/link';
 import { useRouter } from "next/router";
 import React, { useState } from 'react';
 import { signUp } from "../../services/auth";
-import { AUTH_SIGN_IN } from "../../utils/constants";
+import { AUTH_SIGN_IN, AUTH_SIGN_UP } from "../../utils/constants";
+import { SignUpInputs } from "../../utils/types";
 
 const SignUp: NextPage = () => {
   const router = useRouter();
-  const [inputs, setInputs] = useState({
+  const [inputs, setInputs] = useState<SignUpInputs>({
     firstname: '',
     lastname: '',
     email: '',
@@ -18,7 +19,6 @@ const SignUp: NextPage = () => {
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log('on-submit ', inputs);
 
     const result = await signUp(inputs);
     if (typeof result === "string") {

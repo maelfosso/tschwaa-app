@@ -5,3 +5,8 @@ export type SignUpInputs = {
   phone: string
   password: string
 }
+
+export type SignInInputs = {
+  username: string
+  password: string
+}

@@ -1,8 +1,34 @@
 import { LockClosedIcon } from '@heroicons/react/20/solid'
 import type { NextPage } from "next";
+import { signIn } from 'next-auth/react';
 import Link from 'next/link';
+import { FormEventHandler, useState } from 'react';
+import { SignInInputs } from '../../utils/types';
 
-const SignIn: NextPage = () => {
+const SignIn: NextPage = (): JSX.Element => {
+  const [inputs, setInputs] = useState<SignInInputs>({
+    username: '',
+    password: ''
+  });
+  const [error, setSubmissionError] = useState<string>();
+
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    console.log('on-submit ', inputs);
+
+    const res = await signIn('credentials', {
+      ...inputs,
+      redirect: false
+    });
+    console.log('sign-in onSubit',  res);
+    // const result = await signIn(inputs);
+    // if (typeof result === "string") {
+    //   setSubmissionError(result);
+    // } else {
+    //   console.log('on-submit ', result);
+    // }
+  }
+
   return (
     <div className="min-h-full flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
@@ -20,7 +46,11 @@ const SignIn: NextPage = () => {
             {' '} if you don't have one
           </p>
         </div>
-        <form className="mt-8 space-y-6" action="#" method="POST">
+        <form className="mt-8 space-y-6" action="#" method="POST" onSubmit={onSubmit}>
+          { error && <div>
+              { error }
+            </div>
+          }
           <input type="hidden" name="remember" defaultValue="true" />
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
@@ -33,6 +63,7 @@ const SignIn: NextPage = () => {
                 type="text"
                 autoComplete="email"
                 required
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInputs({...inputs, username: e.target.value})}
                 className='appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm'
                 placeholder="Email address or Phone number"
               />
@@ -47,6 +78,7 @@ const SignIn: NextPage = () => {
                 type="password"
                 autoComplete="current-password"
                 required
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInputs({...inputs, password: e.target.value})}
                 className='appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm'
                 placeholder="Password"
               />

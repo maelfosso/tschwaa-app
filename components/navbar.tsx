@@ -1,6 +1,7 @@
 import { Dialog, Disclosure, Menu, Transition } from "@headlessui/react";
 import { Bars2Icon, Bars3Icon, BellIcon, MagnifyingGlassIcon, XMarkIcon } from "@heroicons/react/20/solid";
 import Link from "next/link";
+import { signIn } from "next-auth/react";
 import { Fragment, useState } from "react";
 
 // const navigation = {
@@ -192,7 +193,9 @@ const Navbar = () => {
               {/* if the user is not connected */}
               <div className="hidden md:block lg:flex lg:flex-1 lg:items-center lg:justify-end lg:space-x-6">
                 <Link href="/auth/sign-in">
-                  <a href="#" className="text-sm font-medium text-gray-700 hover:text-gray-800">
+                  <a href="#" className="text-sm font-medium text-gray-700 hover:text-gray-800"onClick={() => {
+                    signIn()
+                  }}> 
                     Sign in
                   </a>
                 </Link>
@@ -301,7 +304,9 @@ const Navbar = () => {
                   href="/auth/sign-in"
                   className="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium"
                 >
-                  <a href="#" className="-m-2 p-2 block font-medium">
+                  <a href="#" className="-m-2 p-2 block font-medium" onClick={() => {
+                    signIn()
+                  }}>
                     Sign in
                   </a>
                 </Disclosure.Button>
