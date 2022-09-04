@@ -1,5 +1,5 @@
 import { ReactElement } from "react";
-import Navbar from "./navbar";
+import Navbar from "./Navbar";
 
 interface LayoutProps {
   children: ReactElement
@@ -7,10 +7,10 @@ interface LayoutProps {
 
 const Layout = ({ children }: LayoutProps ) => {
   return (
-    <>
+    <div className="h-screen">
       <Navbar />
       <main>{children}</main>
-    </>
+    </div>
   );
 }
 
