@@ -3,7 +3,7 @@ import type { NextPage } from "next";
 import { signIn } from 'next-auth/react';
 import Link from 'next/link';
 import Router from 'next/router';
-import { FormEventHandler, useState } from 'react';
+import { useState } from 'react';
 import { SignInInputs } from '../../utils/types';
 
 const SignIn: NextPage = (): JSX.Element => {
@@ -23,9 +23,11 @@ const SignIn: NextPage = (): JSX.Element => {
     });
     console.log('sign-in onSubit',  res);
     if (res?.ok) {
-      // there is an error
+      const { callbackUrl } = Router.query;
+      Router.replace(callbackUrl as string);
     } else {
-      Router.replace("/");
+      // there is an error
+      // Router.replace("/");
     }
   }
 
