@@ -1,7 +1,7 @@
 import { Dialog, Disclosure, Menu, Transition } from "@headlessui/react";
 import { Bars2Icon, Bars3Icon, BellIcon, MagnifyingGlassIcon, XMarkIcon } from "@heroicons/react/20/solid";
 import Link from "next/link";
-import { signIn, useSession } from "next-auth/react";
+import { signIn, signOut, useSession } from "next-auth/react";
 import { Fragment, useState } from "react";
 
 // const navigation = {
@@ -142,7 +142,7 @@ const navigation: {name: string, href: string, current: boolean}[] = [
 const userNavigation: { name: string, href: string }[] = [
   { name: 'Your Profile', href: '#' },
   { name: 'Settings', href: '#' },
-  { name: 'Sign out', href: '#' },
+  // { name: 'Sign out', href: '#' },
 ]
 
 function classNames(...classes: String[]) {
@@ -263,6 +263,23 @@ const Navbar = () => {
                               )}
                             </Menu.Item>
                           ))}
+                          <Menu.Item key="Sign out">
+                            {({ active }) => (
+                              <a
+                                href="#"
+                                className={classNames(
+                                  active
+                                    ? 'bg-gray-100'
+                                    : ''
+                                  ,
+                                  'block px-4 py-2 text-sm text-gray-700'
+                                )}
+                                onClick={() => signOut()}
+                              >
+                                Sign out
+                              </a>
+                            )}
+                            </Menu.Item>
                         </Menu.Items>
                       </Transition>
                     </Menu>
