@@ -28,7 +28,17 @@ const authOptions: NextAuthOptions = {
         }
       }
     })
-  ]
+  ],
+  callbacks: {
+    jwt (params) {
+      // update the token
+      if (params.user?.role) {
+        params.token.role = params.user?.role;
+      }
+      // return the final token
+      return params.token;
+    }
+  }
 }
 
 export default NextAuth(authOptions);

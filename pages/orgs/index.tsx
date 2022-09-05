@@ -1,9 +1,29 @@
 import { Menu, Transition } from "@headlessui/react";
 import { BriefcaseIcon, CalendarIcon, CheckIcon, ChevronDownIcon, CurrencyDollarIcon, LinkIcon, MapPinIcon, PencilIcon, PlusIcon } from "@heroicons/react/20/solid";
-import { Fragment } from "react";
+import { getSession, useSession } from "next-auth/react";
+import Router from "next/router";
+import { Fragment, useEffect } from "react";
 import { classNames } from "../../utils/utils";
 
-const Orgs = () => {
+interface Organization {
+  id: number;
+  code: string;
+  name: string;
+}
+
+interface OrgsProps {
+  orgs: Organization[]
+}
+
+const Orgs = ({ orgs }: OrgsProps ) => {
+  const { data, status } = useSession();
+  
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      Router.replace("/auth/sign-in")
+    }
+  });
+
   return (
     <div className="container mx-auto">
       <div className="lg:flex lg:items-center lg:justify-between">
@@ -58,4 +78,19 @@ const Orgs = () => {
   )
 }
 
+export const getServerSideProps = async (context: any) => {
+  // const session = await getSession();
+  // if (!session) {
+  //   return {
+  //     redirect: {
+  //       destination: '/auth/sign-in',
+  //       permanent: false,
+  //     }
+  //   }
+  // }
+
+  return {
+    props: { orgs: [] }
+  }
+}
 export default Orgs;
