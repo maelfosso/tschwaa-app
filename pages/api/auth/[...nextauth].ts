@@ -1,5 +1,8 @@
-                                         import NextAuth, { NextAuthOptions} from "next-auth";
+                                         import axios, { AxiosError } from "axios";
+import NextAuth, { NextAuthOptions} from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import { signIn } from "../../../services/auth";
+import { catchAxiosError } from "../../../services/error";
 import { SignInInputs } from "../../../utils/types";
 
 const authOptions: NextAuthOptions = {
@@ -13,32 +16,36 @@ const authOptions: NextAuthOptions = {
   },
   providers: [
     CredentialsProvider({
+      id: 'auth-signin',
       type: 'credentials',
       credentials: {},
-      authorize(credentials, req) {
+      async authorize(credentials, req) {
         const { username, password } = credentials as SignInInputs;
-        if (username !== 'me@mail.com' || password !== "1234") {
-          throw new Error('invalid credentials');
-        }
 
-        return {
-          id: '1234',
-          name: 'Josh Doe',
-          email: 'me@mail.com'
+        console.log('credentials - signin - ', username, password);
+        try {
+          const { data } = await signIn({ username, password });
+          console.log('data ... ', data);
+          return data;
+        } catch (error) {
+          const message = error instanceof AxiosError ? catchAxiosError(error) : { error: "error not understood yet"}
+          console.log('error ... ', message);
+          // return null;
+          throw new Error(message.error);
         }
       }
     })
   ],
-  callbacks: {
-    jwt (params) {
-      // update the token
-      if (params.user?.role) {
-        params.token.role = params.user?.role;
-      }
-      // return the final token
-      return params.token;
-    }
-  }
+  // callbacks: {
+  //   jwt (params) {
+  //     // update the token
+  //     if (params.user?.role) {
+  //       params.token.role = params.user?.role;
+  //     }
+  //     // return the final token
+  //     return params.token;
+  //   }
+  // }
 }
 
 export default NextAuth(authOptions);

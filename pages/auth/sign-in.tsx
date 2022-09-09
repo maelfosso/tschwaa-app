@@ -1,6 +1,6 @@
 import { LockClosedIcon } from '@heroicons/react/20/solid'
 import type { NextPage } from "next";
-import { signIn } from 'next-auth/react';
+import { getCsrfToken, signIn } from 'next-auth/react';
 import Link from 'next/link';
 import Router from 'next/router';
 import { useState } from 'react';
@@ -17,17 +17,23 @@ const SignIn: NextPage = (): JSX.Element => {
     e.preventDefault();
     console.log('on-submit ', inputs);
 
-    const res = await signIn('credentials', {
-      ...inputs,
-      redirect: false
-    });
-    console.log('sign-in onSubit',  res);
-    if (res?.ok) {
-      const { callbackUrl } = Router.query;
-      Router.replace(callbackUrl as string);
-    } else {
-      // there is an error
-      // Router.replace("/");
+    try {
+      const res = await signIn('auth-signin', {
+        ...inputs,
+        redirect: false,
+        // callbackUrl: `${window.location.origin}`,
+      });
+      console.log('sign-in onSubit',  res);
+      if (res?.ok) {
+        const { callbackUrl } = Router.query;
+        Router.replace(callbackUrl as string);
+      } else {
+        // there is an error
+        // Router.replace("/");
+        setSubmissionError(res?.error)
+      }
+    } catch (error ) {
+      console.log('sign-in-tsx - ', error);
     }
   }
 
@@ -48,7 +54,7 @@ const SignIn: NextPage = (): JSX.Element => {
             {' '} if you don't have one
           </p>
         </div>
-        <form className="mt-8 space-y-6" action="#" method="POST" onSubmit={onSubmit}>
+        <form className="mt-8 space-y-6" method="POST" onSubmit={onSubmit}>
           { error && <div>
               { error }
             </div>
