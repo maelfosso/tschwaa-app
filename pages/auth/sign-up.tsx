@@ -20,6 +20,7 @@ const SignUp: NextPage = () => {
     e.preventDefault();
 
     const result = await signUp(inputs);
+    console.log('sign up result : ', result);
     if (typeof result === "string") {
       setSubmissionError(result);
     } else {

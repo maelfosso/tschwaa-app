@@ -15,21 +15,17 @@ const SignIn: NextPage = (): JSX.Element => {
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log('on-submit ', inputs);
 
     try {
       const res = await signIn('auth-signin', {
         ...inputs,
-        redirect: false,
-        // callbackUrl: `${window.location.origin}`,
+        redirect: false
       });
-      console.log('sign-in onSubit',  res);
       if (res?.ok) {
         const { callbackUrl } = Router.query;
-        Router.replace(callbackUrl as string);
+        Router.replace(callbackUrl ? callbackUrl as string : { pathname: '/orgs'});
       } else {
         // there is an error
-        // Router.replace("/");
         setSubmissionError(res?.error)
       }
     } catch (error ) {
