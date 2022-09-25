@@ -21,20 +21,25 @@ const authOptions: NextAuthOptions = {
         const { username, password } = credentials as SignInInputs;
 
         const data = await signIn({ username, password });
+        data['name'] = data.firstname + ' ' + data.lastname;
         return data;
       }
     })
   ],
-  // callbacks: {
-  //   jwt (params) {
-  //     // update the token
-  //     if (params.user?.role) {
-  //       params.token.role = params.user?.role;
-  //     }
-  //     // return the final token
-  //     return params.token;
-  //   }
-  // }
+  callbacks: {
+    async jwt (params) {
+      const { token, user } = params;
+      if (user?.access_token) {
+        token.accessToken = user.access_token;
+      }
+
+      return token;
+    },
+    async session({ session, token }) {
+      session.accessToken = token.accessToken;
+      return session;
+    }
+  }
 }
 
 export default NextAuth(authOptions);
