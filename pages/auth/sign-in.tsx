@@ -1,4 +1,4 @@
-import { LockClosedIcon } from '@heroicons/react/20/solid'
+import { LockClosedIcon, XCircleIcon, XMarkIcon } from '@heroicons/react/20/solid'
 import type { NextPage } from "next";
 import { getCsrfToken, signIn } from 'next-auth/react';
 import Link from 'next/link';
@@ -12,6 +12,7 @@ const SignIn: NextPage = (): JSX.Element => {
     password: ''
   });
   const [error, setSubmissionError] = useState<string>();
+  const [showError, setShowError] = useState<boolean>(false);
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -26,11 +27,16 @@ const SignIn: NextPage = (): JSX.Element => {
         Router.replace(callbackUrl ? callbackUrl as string : { pathname: '/orgs'});
       } else {
         // there is an error
+        setShowError(true);
         setSubmissionError(res?.error)
       }
     } catch (error ) {
       console.log('sign-in-tsx - ', error);
     }
+  }
+
+  const onCloseError = () => {
+    setShowError(false);
   }
 
   return (
@@ -51,10 +57,28 @@ const SignIn: NextPage = (): JSX.Element => {
           </p>
         </div>
         <form className="mt-8 space-y-6" method="POST" onSubmit={onSubmit}>
-          { error && <div>
-              { error }
+          { error && showError && <div className='rounded-md bg-red-50 p-4'>
+            <div className='flex'>
+              <div className='flex-shrink-0'>
+                <XCircleIcon className='h-5 w-5 text-red-400' aria-hidden='true' />
+              </div>
+              <div className='ml-3'>
+                <p className='text-sm font-medium text-red-800'>{ error }</p>
+              </div>
+              <div className='ml-auto pl-3'>
+                <div className='-mx-1.5 -my-1.5'>
+                  <button
+                    type='button'
+                    className='inline-flex rounded-md bg-red-50 p-1.5 text-red-500 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2 focus:ring-offset-red-50'
+                    onClick={() => onCloseError()}
+                  >
+                    <span className='sr-only'>Dismiss</span>
+                    <XMarkIcon className='h-5 w-5' aria-hidden='true' />
+                  </button>
+                </div>
+              </div>
             </div>
-          }
+          </div> }
           <input type="hidden" name="remember" defaultValue="true" />
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
