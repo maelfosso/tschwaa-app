@@ -1,9 +1,12 @@
 import { Menu, Transition } from "@headlessui/react";
 import { BriefcaseIcon, CalendarIcon, CheckIcon, ChevronDownIcon, CurrencyDollarIcon, LinkIcon, MapPinIcon, PencilIcon, PlusIcon } from "@heroicons/react/20/solid";
+import { unstable_getServerSession } from "next-auth";
 import { getSession, useSession } from "next-auth/react";
 import Router from "next/router";
 import { Fragment, useEffect } from "react";
+import { get } from "../../utils/axios";
 import { classNames } from "../../utils/utils";
+import { authOptions } from "../api/auth/[...nextauth]"
 
 interface Organization {
   id: number;
@@ -79,15 +82,13 @@ const Orgs = ({ orgs }: OrgsProps ) => {
 }
 
 export const getServerSideProps = async (context: any) => {
-  // const session = await getSession();
-  // if (!session) {
-  //   return {
-  //     redirect: {
-  //       destination: '/auth/sign-in',
-  //       permanent: false,
-  //     }
-  //   }
-  // }
+  const session = await unstable_getServerSession(
+    context.req,
+    context.res,
+    authOptions
+  )
+
+  const data = await get("/orgs", { token: session?.accessToken as string })
 
   return {
     props: { orgs: [] }

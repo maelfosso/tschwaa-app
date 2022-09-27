@@ -21,6 +21,18 @@ export const post = async <T>(url: string, inputs: URLSearchParams | string) => 
   }
 }
 
+export const get = async<T> (url: string, options: { token: string }) => {
+  const { token } =  options;
+  if (token) {
+    instance.defaults.headers.common['Authorization'] = `Bearer ${token}`
+  }
+  try {
+    const { data } = await instance.get<any>(url);
+    return data as T;
+  } catch (error) {
+    throw new Error(axios.isAxiosError(error) ? catchAxiosError(error).error : "An unexpected error occurred");
+  }
+}
 // Alter defaults after instance has been created
 // instance.defaults.headers.common['Authorization'] = AUTH_TOKEN;
 
