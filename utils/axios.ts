@@ -1,4 +1,5 @@
 import axios, { AxiosRequestConfig } from "axios";
+import { SlowBuffer } from "buffer";
 import { catchAxiosError } from "../services/error";
 
 const baseConfig: AxiosRequestConfig = {
@@ -17,6 +18,7 @@ export const post = async <T>(url: string, inputs: URLSearchParams | string) => 
     const { data } = await instance.post<any>(url, inputs);
     return data as T;
   } catch (error) {
+    console.log('POST - ', axios.isAxiosError(error) ? catchAxiosError(error).error : "An unexpected error occurred");
     throw new Error(axios.isAxiosError(error) ? catchAxiosError(error).error : "An unexpected error occurred");
   }
 }

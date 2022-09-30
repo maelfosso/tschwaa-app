@@ -1,7 +1,9 @@
+import { XCircleIcon, XMarkIcon } from "@heroicons/react/20/solid";
 import type { NextPage } from "next";
 import Link from 'next/link';
 import Router from "next/router";
 import React, { useState } from 'react';
+import { getErrorMessage } from "../../helpers/error";
 import { signUp } from "../../services/auth";
 import { AUTH_SIGN_IN, AUTH_SIGN_UP } from "../../utils/constants";
 import { SignUpInputs } from "../../utils/types";
@@ -15,17 +17,22 @@ const SignUp: NextPage = () => {
     password: ''
   });
   const [error, setSubmissionError] = useState<string>();
+  const [showError, setShowError] = useState<boolean>(false);
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const result = await signUp(inputs);
-    console.log('sign up result : ', result);
-    if (typeof result === "string") {
-      setSubmissionError(result);
-    } else {
-      Router.push(AUTH_SIGN_IN);
+    try {
+      await signUp(inputs);
+      Router.replace(AUTH_SIGN_IN);
+    } catch (error) {
+      setShowError(true);
+      setSubmissionError(getErrorMessage(error))
     }
+  }
+
+  const onCloseError = () => {
+    setShowError(false);
   }
 
   return (
@@ -46,10 +53,28 @@ const SignUp: NextPage = () => {
           </p>
         </div>
         <form className="mt-8 space-y-6" action="#" method="POST" onSubmit={onSubmit}>
-          { error && <div>
-              { error }
+          { error && showError && <div className='rounded-md bg-red-50 p-4'>
+            <div className='flex'>
+              <div className='flex-shrink-0'>
+                <XCircleIcon className='h-5 w-5 text-red-400' aria-hidden='true' />
+              </div>
+              <div className='ml-3'>
+                <p className='text-sm font-medium text-red-800'>{ error }</p>
+              </div>
+              <div className='ml-auto pl-3'>
+                <div className='-mx-1.5 -my-1.5'>
+                  <button
+                    type='button'
+                    className='inline-flex rounded-md bg-red-50 p-1.5 text-red-500 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2 focus:ring-offset-red-50'
+                    onClick={() => onCloseError()}
+                  >
+                    <span className='sr-only'>Dismiss</span>
+                    <XMarkIcon className='h-5 w-5' aria-hidden='true' />
+                  </button>
+                </div>
+              </div>
             </div>
-          }
+          </div> }
           <input type="hidden" name="remember" defaultValue="true" />
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
