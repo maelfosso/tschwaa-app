@@ -5,7 +5,7 @@ import { getSession, useSession } from "next-auth/react";
 import Router from "next/router";
 import { Fragment, useEffect, useState } from "react";
 import { get } from "../../utils/axios";
-import { classNames } from "../../utils/utils";
+import { AUTH_SIGN_IN } from "../../utils/constants";
 import { authOptions } from "../api/auth/[...nextauth]"
 
 interface Organization {
@@ -24,7 +24,7 @@ const Orgs = ({ orgs }: OrgsProps ) => {
   
   useEffect(() => {
     if (status === "unauthenticated") {
-      Router.replace("/auth/sign-in")
+      Router.replace(AUTH_SIGN_IN)
     }
   });
 
@@ -32,25 +32,8 @@ const Orgs = ({ orgs }: OrgsProps ) => {
     setOpen(true);
   }
 
-  return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-      <div className="mb-8 md:flex md:items-center md:justify-between">
-        <div className="min-w-0 flex-1">
-          <h2 className="text-3xl font-bold leading-7 text-gray-900 sm:truncate sm:text-4xl sm:tracking-tight">
-            Organizations
-          </h2>
-        </div>
-        <div className="mt-4 flex md:mt-0 md:ml-4">
-          <button
-            type="button"
-            className="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-            onClick={() => onNewOrganization()}
-          >
-            <PlusIcon className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
-            New Organization
-          </button>
-        </div>
-      </div>
+  const renderNoOrg = () => {
+    return (
       <div className="text-center">
         <div
           className="relative block w-full rounded-lg border-2 border-dashed border-gray-300 p-12 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
@@ -84,6 +67,37 @@ const Orgs = ({ orgs }: OrgsProps ) => {
           </div>
         </div>
       </div>
+    );
+  }
+
+  const renderAllTheOrgs = () =>  {
+    return (
+      <div>
+        <h1>All the Organizations</h1>
+      </div>
+    )
+  }
+
+  return (
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="mb-8 md:flex md:items-center md:justify-between">
+        <div className="min-w-0 flex-1">
+          <h2 className="text-3xl font-bold leading-7 text-gray-900 sm:truncate sm:text-4xl sm:tracking-tight">
+            Organizations
+          </h2>
+        </div>
+        <div className="mt-4 flex md:mt-0 md:ml-4">
+          <button
+            type="button"
+            className="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+            onClick={() => onNewOrganization()}
+          >
+            <PlusIcon className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
+            New Organization
+          </button>
+        </div>
+      </div>
+      { orgs.length === 0 ? renderNoOrg() : renderAllTheOrgs() }
       <Transition.Root show={open} as={Fragment}>
         <Dialog as="div" className="relative z-10" onClose={setOpen}>
           <div className="fixed inset-0" />
@@ -203,9 +217,9 @@ export const getServerSideProps = async (context: any) => {
   )
 
   const data = await get("/orgs", { token: session?.accessToken as string })
-
+  console.log('Orgs - ', data);
   return {
-    props: { orgs: [] }
+    props: { orgs: data }
   }
 }
 export default Orgs;
