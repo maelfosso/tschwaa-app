@@ -1,6 +1,8 @@
+import axios from "axios";
 import NextAuth, { NextAuthOptions} from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { signIn } from "../../../services/auth";
+import customAxiosInstance from "../../../utils/axios";
 import { SignInInputs } from "../../../utils/types";
 
 export const authOptions: NextAuthOptions = {
@@ -37,6 +39,7 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       session.accessToken = token.accessToken;
+      customAxiosInstance.setToken(session.accessToken as string);
       return session;
     }
   }
