@@ -3,8 +3,9 @@ import { BriefcaseIcon, CalendarIcon, CheckIcon, ChevronDownIcon, CurrencyDollar
 import { unstable_getServerSession } from "next-auth";
 import { getSession, useSession } from "next-auth/react";
 import Router from "next/router";
-import { Fragment, useEffect, useState } from "react";
-import { get } from "../../utils/axios";
+import React, { Fragment, useEffect, useState } from "react";
+import { getErrorMessage } from "../../helpers/error";
+import customAxiosInstance from "../../utils/axios";
 import { AUTH_SIGN_IN } from "../../utils/constants";
 import { authOptions } from "../api/auth/[...nextauth]"
 
@@ -12,6 +13,7 @@ interface Organization {
   id: number;
   code: string;
   name: string;
+  description: string;
 }
 
 interface OrgsProps {
@@ -19,17 +21,22 @@ interface OrgsProps {
 }
 
 const Orgs = ({ orgs }: OrgsProps ) => {
-  const { data, status } = useSession();
   const [open, setOpen] = useState<boolean>(false)
-  
-  useEffect(() => {
-    if (status === "unauthenticated") {
-      Router.replace(AUTH_SIGN_IN)
-    }
-  });
+  const [org, setOrg] = useState<Organization>()
 
   const onNewOrganization = () => {
     setOpen(true);
+  }
+
+  const onCreateOrganization = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    try {
+      await customAxiosInstance.post('/orgs', JSON.stringify(org))
+      window.location.reload();
+    } catch (error) {
+      console.log("Error ", getErrorMessage(error));
+    }
   }
 
   const renderNoOrg = () => {
@@ -115,7 +122,10 @@ const Orgs = ({ orgs }: OrgsProps ) => {
                   leaveTo="translate-x-full"
                 >
                   <Dialog.Panel className="pointer-events-auto w-screen max-w-2xl">
-                    <form className="flex h-full flex-col overflow-y-scroll bg-white shadow-xl">
+                    <form
+                      className="flex h-full flex-col overflow-y-scroll bg-white shadow-xl"
+                      onSubmit={onCreateOrganization}
+                    >
                       <div className="flex-1">
                         {/* Header */}
                         <div className="bg-gray-50 px-4 py-6 sm:px-6">
@@ -153,6 +163,7 @@ const Orgs = ({ orgs }: OrgsProps ) => {
                                 name="organization-name"
                                 id="organization-name"
                                 className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                onChange={(event) => setOrg({...org!, name: event.target.value})}
                               />
                             </div>
                           </div>
@@ -173,6 +184,7 @@ const Orgs = ({ orgs }: OrgsProps ) => {
                                 id="organization-description"
                                 rows={3}
                                 className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                onChange={(event) => setOrg({...org!, description: event.target.value})}
                                 defaultValue={''}
                               />
                             </div>
@@ -190,7 +202,7 @@ const Orgs = ({ orgs }: OrgsProps ) => {
                             Cancel
                           </button>
                           <button
-                            type="button"
+                            type="submit"
                             className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                           >
                             Create
@@ -216,7 +228,7 @@ export const getServerSideProps = async (context: any) => {
     authOptions
   )
 
-  const data = await get("/orgs", { token: session?.accessToken as string })
+  const data = await customAxiosInstance.get("/orgs")
   console.log('Orgs - ', data);
   return {
     props: { orgs: data }
