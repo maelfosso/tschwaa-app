@@ -1,5 +1,5 @@
 import { Dialog, Menu, Transition } from "@headlessui/react";
-import { BriefcaseIcon, CalendarIcon, CheckIcon, ChevronDownIcon, CurrencyDollarIcon, LinkIcon, MapPinIcon, PencilIcon, PlusIcon, XMarkIcon } from "@heroicons/react/20/solid";
+import { BriefcaseIcon, CalendarIcon, CheckIcon, ChevronDownIcon, ChevronRightIcon, CurrencyDollarIcon, LinkIcon, MapPinIcon, PencilIcon, PlusIcon, XMarkIcon } from "@heroicons/react/20/solid";
 import { unstable_getServerSession } from "next-auth";
 import { getSession, useSession } from "next-auth/react";
 import Router from "next/router";
@@ -7,6 +7,7 @@ import React, { Fragment, useEffect, useState } from "react";
 import { getErrorMessage } from "../../helpers/error";
 import customAxiosInstance from "../../utils/axios";
 import { AUTH_SIGN_IN } from "../../utils/constants";
+import { classNames } from "../../utils/utils";
 import { authOptions } from "../api/auth/[...nextauth]"
 
 interface Organization {
@@ -14,6 +15,7 @@ interface Organization {
   code: string;
   name: string;
   description: string;
+  active: boolean;
 }
 
 interface OrgsProps {
@@ -79,8 +81,24 @@ const Orgs = ({ orgs }: OrgsProps ) => {
 
   const renderAllTheOrgs = () =>  {
     return (
-      <div>
-        <h1>All the Organizations</h1>
+      <div className="overflow-hidden bg-white shadow sm:rounded-md">
+        <ul role="list" className="divide-y divide-gray-200">
+          { orgs.map((org) => (
+            <li key={`org-${org.id}`} className="py-4 hover:bg-gray-50">
+              <a href={`orgs/${org.id}`} className="block">
+                <div className="flex items-center px-4 sm:px-6">
+                  <div className="flex flex-col min-w-0 flex-1 ml-3">
+                    <h2 className="text-1xl leading-7 text-gray-900 sm:truncate sm:text-2xl sm:tracking-tight">{ org.name }</h2>
+                    <p className="text-sm text-gray-500">{ org.description }</p>
+                  </div>
+                  <div>
+                    <ChevronRightIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
+                  </div>
+                </div>
+              </a>
+            </li>
+          ))}
+        </ul>
       </div>
     )
   }
