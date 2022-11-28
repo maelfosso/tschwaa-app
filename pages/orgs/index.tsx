@@ -5,18 +5,11 @@ import { getSession, useSession } from "next-auth/react";
 import Router from "next/router";
 import React, { Fragment, useEffect, useState } from "react";
 import { getErrorMessage } from "../../helpers/error";
+import Organization from "../../models/organization";
 import customAxiosInstance from "../../utils/axios";
 import { AUTH_SIGN_IN } from "../../utils/constants";
 import { classNames } from "../../utils/utils";
 import { authOptions } from "../api/auth/[...nextauth]"
-
-interface Organization {
-  id: number;
-  code: string;
-  name: string;
-  description: string;
-  active: boolean;
-}
 
 interface OrgsProps {
   orgs: Organization[]
@@ -34,8 +27,9 @@ const Orgs = ({ orgs }: OrgsProps ) => {
     event.preventDefault();
 
     try {
-      await customAxiosInstance.post('/orgs', JSON.stringify(org))
-      window.location.reload();
+      const orgId = await customAxiosInstance.post<number>('/orgs', JSON.stringify(org))
+      // window.location.reload();
+      Router.push(`orgs/${orgId}`)
     } catch (error) {
       console.log("Error ", getErrorMessage(error));
     }

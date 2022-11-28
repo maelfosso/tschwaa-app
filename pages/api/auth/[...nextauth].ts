@@ -21,8 +21,9 @@ export const authOptions: NextAuthOptions = {
       credentials: {},
       async authorize(credentials, req) {
         const { username, password } = credentials as SignInInputs;
-
+        console.log('next-auth credentials : ', username, password);
         const data = await signIn({ username, password });
+        console.log('next-auth - ', data);
         data['name'] = data.firstname + ' ' + data.lastname;
         return data;
       }

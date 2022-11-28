@@ -1,15 +1,64 @@
 import { Menu, Transition } from "@headlessui/react";
-import { BriefcaseIcon, CalendarIcon, CheckIcon, ChevronDownIcon, CurrencyDollarIcon, LinkIcon, MapPinIcon, PencilIcon } from "@heroicons/react/20/solid";
+import { Bars4Icon, BriefcaseIcon, CalendarIcon, CheckIcon, ChevronDownIcon, ClockIcon, CurrencyDollarIcon, LinkIcon, MapPinIcon, PencilIcon, PhotoIcon, TableCellsIcon, ViewColumnsIcon } from "@heroicons/react/20/solid";
 import { Fragment } from "react";
+import Organization from "../../../models/organization";
+import customAxiosInstance from "../../../utils/axios";
 import { classNames } from "../../../utils/utils";
 
-const Orgs = () => {
+interface OrgDetailsProps {
+  org: Organization
+}
+
+const items = [
+  {
+    title: 'Create a List',
+    description: 'Another to-do system you’ll try but eventually give up on.',
+    icon: Bars4Icon,
+    background: 'bg-pink-500',
+  },
+  {
+    title: 'Create a Calendar',
+    description: 'Stay on top of your deadlines, or don’t — it’s up to you.',
+    icon: CalendarIcon,
+    background: 'bg-yellow-500',
+  },
+  {
+    title: 'Create a Gallery',
+    description: 'Great for mood boards and inspiration.',
+    icon: PhotoIcon,
+    background: 'bg-green-500',
+  },
+  {
+    title: 'Create a Board',
+    description: 'Track tasks in different stages of your project.',
+    icon: ViewColumnsIcon,
+    background: 'bg-blue-500',
+  },
+  {
+    title: 'Create a Spreadsheet',
+    description: 'Lots of numbers and things — good for nerds.',
+    icon: TableCellsIcon,
+    background: 'bg-indigo-500',
+  },
+  {
+    title: 'Create a Timeline',
+    description: 'Get a birds-eye-view of your procrastination.',
+    icon: ClockIcon,
+    background: 'bg-purple-500',
+  },
+]
+
+const classNames = (...classes: string[]) => {
+  return classes.filter(Boolean).join(' ')
+}
+
+const OrgDetails = ({ org }: OrgDetailsProps) => {
   return (
     <div className="container mx-auto">
       <div className="lg:flex lg:items-center lg:justify-between">
         <div className="min-w-0 flex-1">
           <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
-            G20
+           { org.name }
           </h2>
           <div className="mt-1 flex flex-col sm:mt-0 sm:flex-row sm:flex-wrap sm:space-x-6">
             <div className="mt-2 flex items-center text-sm text-gray-500">
@@ -91,12 +140,41 @@ const Orgs = () => {
           </Menu>
         </div>
       </div>
-      {/* <div className="flex flex-row min-h-screen justify-center items-center">
-        <h1>Here are all the organization you are in</h1>
-      </div> */}
+
+      <div>
+        <ul role="list" className="mt-6 grid grid-cols-1 gap-6 border-t border-b border-gray-200 py-6 sm:grid-cols-2">
+          { items.map((item, itemIdx) => (
+            <li key={itemIdx} className="flow-root">
+              <div className="relative -m-2 flex items-center space-x-4 rounded-xl p-2 focus-within:ring-2 focus-within:ring-indigo-500 hover:bg-gray-50">
+                <div
+                  className={classNames(
+                    item.background,
+                    'flex-shrink-0 flex items-center justify-center h-16  w-16 rounded-lg'
+                  )}
+                >
+                  <item.icon className="h-6 w-6 text-white" aria-hidden="true" />
+                </div>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   )
 }
 
-export default Orgs;
+export const getServerSideProps = () => {
+  const data = customAxiosInstance.get(`org/1`)
+  return {
+    props: {
+      org: data
+    }
+  }
+}
+
+export default OrgDetails;
+  // </div>
+  // <div className="flex flex-row min-h-screen justify-center items-center">
+  //   <h1>Here are all the organization you are in</h1>
+  // </div>
   
