@@ -2,7 +2,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { ReactElement } from "react";
 import customAxiosInstance from "../utils/axios";
-import Navbar from "./Navbar";
+import Navbar from "./navbar";
 
 interface LayoutProps {
   children: ReactElement

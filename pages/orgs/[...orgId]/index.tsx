@@ -48,10 +48,6 @@ const items = [
   },
 ]
 
-const classNames = (...classes: string[]) => {
-  return classes.filter(Boolean).join(' ')
-}
-
 const OrgDetails = ({ org }: OrgDetailsProps) => {
   return (
     <div className="container mx-auto">
@@ -163,8 +159,10 @@ const OrgDetails = ({ org }: OrgDetailsProps) => {
   )
 }
 
-export const getServerSideProps = () => {
-  const data = customAxiosInstance.get(`org/1`)
+export const getServerSideProps = async () => {
+  const data = await customAxiosInstance.get(`orgs/1`)
+  console.log('Get Org Details');
+  console.log(data);
   return {
     props: {
       org: data

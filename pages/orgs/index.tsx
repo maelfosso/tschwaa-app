@@ -234,11 +234,11 @@ const Orgs = ({ orgs }: OrgsProps ) => {
 }
 
 export const getServerSideProps = async (context: any) => {
-  const session = await unstable_getServerSession(
-    context.req,
-    context.res,
-    authOptions
-  )
+  // const session = await unstable_getServerSession(
+  //   context.req,
+  //   context.res,
+  //   authOptions
+  // )
 
   const data = await customAxiosInstance.get("/orgs")
   console.log('Orgs - ', data);
@@ -246,4 +246,5 @@ export const getServerSideProps = async (context: any) => {
     props: { orgs: data }
   }
 }
+
 export default Orgs;

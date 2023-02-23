@@ -7,7 +7,8 @@ import { SignInInputs } from "../../../utils/types";
 
 export const authOptions: NextAuthOptions = {
   session: {
-    strategy: 'jwt'
+    strategy: 'jwt',
+    maxAge: 60 * 60
   },
   pages: {
     signIn: '/auth/sign-in',
@@ -21,10 +22,8 @@ export const authOptions: NextAuthOptions = {
       credentials: {},
       async authorize(credentials, req) {
         const { username, password } = credentials as SignInInputs;
-        console.log('next-auth credentials : ', username, password);
+
         const data = await signIn({ username, password });
-        console.log('next-auth - ', data);
-        data['name'] = data.firstname + ' ' + data.lastname;
         return data;
       }
     })
@@ -39,6 +38,7 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
     async session({ session, token }) {
+      console.log('session token : ', session, token);
       session.accessToken = token.accessToken;
       customAxiosInstance.setToken(session.accessToken as string);
       return session;

@@ -1,31 +1,52 @@
 // import axios from 'axios';
-import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from "axios";
+import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
 import { SlowBuffer } from "buffer";
 import { signOut } from "next-auth/react";
 import { catchAxiosError } from "../services/error";
 
-const baseConfig: AxiosRequestConfig = {
-  baseURL: typeof window === 'undefined' ? process.env.SERVER_URL : process.env.NEXT_PUBLIC_SERVER_URL,
-  headers: {
-    'Content-Type': 'applicatin/json',
-    'Accept': 'application/json'
-  }
-}
+const isServer = () => typeof window === 'undefined';
 
 class CustomAxiosInstance {
   instance: AxiosInstance;
 
   constructor() {
+    const baseConfig: AxiosRequestConfig = {
+      baseURL: isServer() ? process.env.SERVER_URL : process.env.NEXT_PUBLIC_API_URL,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      }
+    }
+
     this.instance = axios.create(baseConfig);
+
+    // this.instance.interceptors.response.use(this.onRequestFulfilled, this.onRequestRejected)
+  }
+
+  onRequestFulfilled(response: AxiosResponse) {
+    return response;
+  }
+
+  onRequestRejected(error: AxiosError) {
+    console.log("Interceptors Errors");
+    if (error?.response?.status == 401) {
+      console.log('Authorization 401 errror');
+      alert("Authorization 401")
+      window.location.href = '/auth/sign-in'
+      return
+    }
+
+    return error;
   }
 
   setToken(token: string) {
-    this.instance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
   }
 
   async post<T>(url: string, inputs: URLSearchParams | string) {
+    console.log('post ', url, this.instance.defaults.baseURL)
     try {
-      const { data } = await this.instance.post<any>(url, inputs);
+      const { data } = await this.instance.post<T>(url, inputs);
       return data as T;
     } catch (error) {
       throw new Error(axios.isAxiosError(error) ? catchAxiosError(error).error : "An unexpected error occurred");
@@ -34,7 +55,8 @@ class CustomAxiosInstance {
 
   async get<T>(url: string) {
     try {
-      const { data } = await this.instance.get<any>(url);
+      console.log('Headers ', this.instance.defaults.headers);
+      const { data } = await this.instance.get<T>(url);
       return data as T;
     } catch (error) {
       throw new Error(axios.isAxiosError(error) ? catchAxiosError(error).error : "An unexpected error occurred");
@@ -46,68 +68,3 @@ class CustomAxiosInstance {
 const customAxiosInstance = new CustomAxiosInstance();
 export default customAxiosInstance;
 
-
-// const instance = <T>(config: AxiosRequestConfig): Promise<T> => {
-//   // Get default headers
-//   const defaultHeaders = axios.defaults.headers.common;
-//   // create new config
-//   const newConfig = { ...config, headers: { ...defaultHeaders, ...config.headers } };
-//   const source = axios.CancelToken.source();
-//   const promise = AXIOS_INSTANCE({
-//     ...newConfig,
-//     cancelToken: source.token,
-//   })
-//     .then(({ data }) => data)
-//     .catch((error: AxiosError) => {
-//       // Catch 401 errors
-//       if (
-//         error.response &&
-//         error.response.status &&
-//         error.response.status === 401
-//       ) {
-//         signOut({
-//           redirect: true,
-//           callbackUrl: `${process.env.NEXT_PUBLIC_URL}/auth/signin`,
-//         });
-//       }
-//       throw error;
-//     });
-//   promise.cancel = () => {
-//     source.cancel('Query was cancelled by React Query');
-//   };
-
-//   return promise;
-// };
-
-// export default instance;
-
-
-// Set config defaults when creating the instance
-// const instance = axios.create(baseConfig);
-
-// export const post = async <T>(url: string, inputs: URLSearchParams | string) => {
-//   try {
-//     const { data } = await instance(baseConfig).post<any>(url, inputs);
-//     return data as T;
-//   } catch (error) {
-//     console.log('POST - ', axios.isAxiosError(error) ? catchAxiosError(error).error : "An unexpected error occurred");
-//     throw new Error(axios.isAxiosError(error) ? catchAxiosError(error).error : "An unexpected error occurred");
-//   }
-// }
-
-// export const get = async<T> (url: string, options: { token: string }) => {
-//   const { token } =  options;
-//   if (token) {
-//     instance.defaults.headers.common['Authorization'] = `Bearer ${token}`
-//   }
-//   try {
-//     const { data } = await instance.get<any>(url);
-//     return data as T;
-//   } catch (error) {
-//     throw new Error(axios.isAxiosError(error) ? catchAxiosError(error).error : "An unexpected error occurred");
-//   }
-// }
-// Alter defaults after instance has been created
-// instance.defaults.headers.common['Authorization'] = AUTH_TOKEN;
-
-// export default instance;

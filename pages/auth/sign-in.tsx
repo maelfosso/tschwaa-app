@@ -22,7 +22,7 @@ const SignIn: NextPage = (): JSX.Element => {
         ...inputs,
         redirect: false
       });
-      console.log(res);
+
       if (res?.ok) {
         const { callbackUrl } = Router.query;
         Router.replace(callbackUrl ? callbackUrl as string : { pathname: '/orgs'});
@@ -54,7 +54,7 @@ const SignIn: NextPage = (): JSX.Element => {
                 create an account
               </a>
             </Link>
-            {' '} if you don't have one
+            {' '} if you don&apos;t have one
           </p>
         </div>
         <form className="mt-8 space-y-6" method="POST" onSubmit={onSubmit}>

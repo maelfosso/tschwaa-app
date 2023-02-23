@@ -3,6 +3,7 @@ import { Bars2Icon, Bars3Icon, BellIcon, MagnifyingGlassIcon, XMarkIcon } from "
 import Link from "next/link";
 import { signIn, signOut, useSession } from "next-auth/react";
 import { Fragment, useState } from "react";
+import Image from "next/image";
 
 // const navigation = {
 //   categories: [
@@ -142,7 +143,7 @@ const navigation: {name: string, href: string, current: boolean}[] = [
 const userNavigation: { name: string, href: string }[] = [
   { name: 'Your Profile', href: '#' },
   { name: 'Settings', href: '#' },
-  // { name: 'Sign out', href: '#' },
+  { name: 'Sign out', href: '#' },
 ]
 
 function classNames(...classes: String[]) {
@@ -163,8 +164,13 @@ const Navbar = () => {
             <div className="flex items-center justify-between h-16">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
-                  <img
-                    className="h-8 w-8"
+                  <Image
+                    height={'2em'}
+                    width={'2em'}
+                    style={{
+                      maxWidth: '100%',
+                      height: 'auto',
+                    }}
                     src="https://tailwindui.com/img/logos/workflow-mark.svg?color=indigo&shade=500"
                     alt="Workflow"
                   />
@@ -232,7 +238,10 @@ const Navbar = () => {
                       <div>
                         <Menu.Button className="max-w-xs bg-gray-800 rounded-full flex items-center text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white">
                           <span className="sr-only">Open user menu</span>
-                          <img className="h-8 w-8 rounded-full" src={user.imageUrl} alt="" />
+                          <Image className="h-8 w-8 rounded-full" 
+                            height={'2em'}
+                            width={'2em'} src={user.imageUrl} alt={`${user.name} avatar`}
+                          />
                         </Menu.Button>
                       </div>
                       <Transition
@@ -361,7 +370,7 @@ const Navbar = () => {
               <div className="pt-4 pb-3 border-t border-gray-700">
                 <div className="flex items-center px-5">
                   <div className="flex-shrink-0">
-                    <img className="h-10 w-10 rounded-full" src={user.imageUrl} alt="" />
+                    <Image className="h-10 w-10 rounded-full" src={user.imageUrl} alt="" />
                   </div>
                   <div className="ml-3">
                     <div className="text-base font-medium leading-none text-white">{data?.user?.name}</div>
