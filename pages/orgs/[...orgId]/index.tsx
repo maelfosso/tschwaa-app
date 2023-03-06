@@ -1,6 +1,7 @@
 import { Menu, Transition } from "@headlessui/react";
 import { Bars4Icon, BriefcaseIcon, CalendarIcon, CheckIcon, ChevronDownIcon, ClockIcon, CurrencyDollarIcon, LinkIcon, MapPinIcon, PencilIcon, PhotoIcon, TableCellsIcon, ViewColumnsIcon } from "@heroicons/react/20/solid";
 import { Fragment } from "react";
+import { GetServerSideProps } from 'next'
 import Organization from "../../../models/organization";
 import customAxiosInstance from "../../../utils/axios";
 import { classNames } from "../../../utils/utils";
@@ -159,10 +160,10 @@ const OrgDetails = ({ org }: OrgDetailsProps) => {
   )
 }
 
-export const getServerSideProps = async () => {
-  const data = await customAxiosInstance.get(`orgs/1`)
-  console.log('Get Org Details');
-  console.log(data);
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const { query } = context;
+
+  const data = await customAxiosInstance.get(`orgs/${query.orgId}`)
   return {
     props: {
       org: data
@@ -171,8 +172,3 @@ export const getServerSideProps = async () => {
 }
 
 export default OrgDetails;
-  // </div>
-  // <div className="flex flex-row min-h-screen justify-center items-center">
-  //   <h1>Here are all the organization you are in</h1>
-  // </div>
-  

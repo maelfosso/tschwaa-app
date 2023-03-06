@@ -30,8 +30,6 @@ class CustomAxiosInstance {
   onRequestRejected(error: AxiosError) {
     console.log("Interceptors Errors");
     if (error?.response?.status == 401) {
-      console.log('Authorization 401 errror');
-      alert("Authorization 401")
       window.location.href = '/auth/sign-in'
       return
     }
@@ -44,7 +42,6 @@ class CustomAxiosInstance {
   }
 
   async post<T>(url: string, inputs: URLSearchParams | string) {
-    console.log('post ', url, this.instance.defaults.baseURL)
     try {
       const { data } = await this.instance.post<T>(url, inputs);
       return data as T;
@@ -55,7 +52,6 @@ class CustomAxiosInstance {
 
   async get<T>(url: string) {
     try {
-      console.log('Headers ', this.instance.defaults.headers);
       const { data } = await this.instance.get<T>(url);
       return data as T;
     } catch (error) {

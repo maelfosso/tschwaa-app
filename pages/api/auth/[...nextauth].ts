@@ -38,7 +38,6 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
     async session({ session, token }) {
-      console.log('session token : ', session, token);
       session.accessToken = token.accessToken;
       customAxiosInstance.setToken(session.accessToken as string);
       return session;
