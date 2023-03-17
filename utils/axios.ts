@@ -39,6 +39,8 @@ class CustomAxiosInstance {
 
   setToken(token: string) {
     axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    this.instance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    console.log('axios set token: ', token);
   }
 
   async post<T>(url: string, inputs: URLSearchParams | string) {
