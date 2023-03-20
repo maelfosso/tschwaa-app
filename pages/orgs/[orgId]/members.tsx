@@ -1,9 +1,11 @@
 import { Menu, Transition } from "@headlessui/react";
-import { ChevronDownIcon, PlusIcon } from "@heroicons/react/20/solid";
+import { ChevronDownIcon, PaperAirplaneIcon, PlusIcon } from "@heroicons/react/20/solid";
 import { GetServerSideProps } from "next"
 import { Fragment, useState } from "react";
+import { Notification } from "../../../components/notification";
 import { sendInviteOnWhatsapp } from "../../../services/organizations";
 import customAxiosInstance from "../../../utils/axios";
+import { fromJson } from "../../../utils/utils";
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ')
@@ -53,6 +55,7 @@ interface Member {
   name: string;
   phoneNumber: string;
   email: string;
+  joined: boolean;
 }
 
 interface MembersProps {
@@ -62,15 +65,25 @@ interface MembersProps {
 
 const Members = ({ orgId, members }: MembersProps) => {
   const [phoneNumber, setPhoneNumber] = useState<string>();
+  const [showInvitationNotification, setShowInvitationNotification] = useState<boolean>(false);
 
+  console.log('Memebers ', members);
   const handleSendInviteWhatsappClick = async () => {
     console.log('handleSendInviteWhatsapp : ', phoneNumber);
     const data = await sendInviteOnWhatsapp(orgId, phoneNumber!);
     console.log('sendInviteOnWhatsapp response : ', data);
+    setShowInvitationNotification(true);
   }
 
   return (
     <div>
+      <Notification
+        show={showInvitationNotification}
+        onClose={() => setShowInvitationNotification(false)}
+        title="Invitations sent"
+        content={`a message has been sent to the number ${phoneNumber}`}
+      />
+
       <div className="mx-auto max-w-md sm:max-w-3xl">
         <div>
           <div className="text-center">
@@ -185,9 +198,35 @@ const Members = ({ orgId, members }: MembersProps) => {
           </form>
         </div>
         <div className="mt-10">
-          <h3 className="text-sm font-medium text-gray-500">Recommended team members</h3>
+          <h3 className="text-sm font-medium text-gray-500">Invited members</h3>
           <ul role="list" className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-            {people.map((person, personIdx) => (
+            {members.filter(m => !m.joined).map((member, memberIdx) => (
+              <li key={memberIdx}>
+                <button
+                  type="button"
+                  className="group flex w-full items-center justify-between space-x-3 rounded-full border border-gray-300 p-2 text-left shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                >
+                  <span className="flex min-w-0 flex-1 items-center space-x-3">
+                    <span className="block flex-shrink-0">
+                      {/* <img className="h-10 w-10 rounded-full" src={person.imageUrl} alt="" /> */}
+                    </span>
+                    <span className="block min-w-0 flex-1">
+                      <span className="block truncate text-sm font-medium text-gray-900">{member.name}</span>
+                      <span className="block truncate text-sm font-medium text-gray-500">{member.phoneNumber}</span>
+                    </span>
+                  </span>
+                  <span className="inline-flex h-10 w-10 flex-shrink-0 items-center justify-center">
+                    <PaperAirplaneIcon className="h-5 w-5 text-gray-400 group-hover:text-gray-500" aria-hidden="true" />
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div className="mt-10">
+          <h3 className="text-sm font-medium text-gray-500">Members</h3>
+          <ul role="list" className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            {members.filter(m => m.joined).map((person, personIdx) => (
               <li key={personIdx}>
                 <button
                   type="button"
@@ -195,11 +234,11 @@ const Members = ({ orgId, members }: MembersProps) => {
                 >
                   <span className="flex min-w-0 flex-1 items-center space-x-3">
                     <span className="block flex-shrink-0">
-                      <img className="h-10 w-10 rounded-full" src={person.imageUrl} alt="" />
+                      {/* <img className="h-10 w-10 rounded-full" src={person.imageUrl} alt="" /> */}
                     </span>
                     <span className="block min-w-0 flex-1">
                       <span className="block truncate text-sm font-medium text-gray-900">{person.name}</span>
-                      <span className="block truncate text-sm font-medium text-gray-500">{person.role}</span>
+                      <span className="block truncate text-sm font-medium text-gray-500">{person.phoneNumber}</span>
                     </span>
                   </span>
                   <span className="inline-flex h-10 w-10 flex-shrink-0 items-center justify-center">
@@ -217,14 +256,14 @@ const Members = ({ orgId, members }: MembersProps) => {
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const { query } = context;
-  console.log('Members Query : ', query);
   const { orgId } = query;
 
-  // const data = await customAxiosInstance.get(`orgs/${query.orgId}/members`);
+  const data = await customAxiosInstance.get(`orgs/${orgId}/members`);
+
   return {
     props: {
       orgId: +orgId!,
-      members: []
+      members: fromJson<Member>(data)
     }
   }
 }
