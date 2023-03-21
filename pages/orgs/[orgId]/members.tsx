@@ -5,6 +5,7 @@ import { Fragment, useState } from "react";
 import { Notification } from "../../../components/notification";
 import { sendInviteOnWhatsapp } from "../../../services/organizations";
 import customAxiosInstance from "../../../utils/axios";
+import { JustInvitedMembers, Member } from "../../../utils/types";
 import { fromJson } from "../../../utils/utils";
 
 function classNames(...classes: string[]) {
@@ -50,14 +51,6 @@ const people = [
   },
 ]
 
-interface Member {
-  id: number;
-  name: string;
-  phoneNumber: string;
-  email: string;
-  joined: boolean;
-}
-
 interface MembersProps {
   orgId: number,
   members: Member[]
@@ -66,12 +59,16 @@ interface MembersProps {
 const Members = ({ orgId, members }: MembersProps) => {
   const [phoneNumber, setPhoneNumber] = useState<string>();
   const [showInvitationNotification, setShowInvitationNotification] = useState<boolean>(false);
+  const [justInvitedMembers, setJustInvitedMembers] = useState<JustInvitedMembers[]>([])
 
-  console.log('Memebers ', members);
   const handleSendInviteWhatsappClick = async () => {
-    console.log('handleSendInviteWhatsapp : ', phoneNumber);
     const data = await sendInviteOnWhatsapp(orgId, phoneNumber!);
-    console.log('sendInviteOnWhatsapp response : ', data);
+    setShowInvitationNotification(true);
+    setJustInvitedMembers(fromJson(data) as JustInvitedMembers[])
+  }
+
+  const handleResendWhatsappInvitationClick = async (to: string) => {
+    const data = await sendInviteOnWhatsapp(orgId, to!);
     setShowInvitationNotification(true);
   }
 
@@ -121,20 +118,6 @@ const Members = ({ orgId, members }: MembersProps) => {
                 className="col-start-1 col-end-3 row-start-1 rounded-md shadow-sm ring-1 ring-inset ring-gray-300 peer-focus:ring-2 peer-focus:ring-indigo-600"
                 aria-hidden="true"
               />
-              {/* <div className="col-start-2 row-start-1 flex items-center">
-                <span className="h-4 w-px flex-none bg-gray-200" aria-hidden="true" />
-                <label htmlFor="role" className="sr-only">
-                  Role
-                </label>
-                <select
-                  id="role"
-                  name="role"
-                  className="rounded-md border-0 bg-transparent py-1.5 pl-4 pr-7 text-gray-900 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                >
-                  <option>Can edit</option>
-                  <option>Can view</option>
-                </select>
-              </div> */}
             </div>
             <div className="mt-3 sm:mt-0 sm:ml-4 sm:flex-shrink-0">
               <Menu as="div" className="relative inline-block text-left">
@@ -200,11 +183,36 @@ const Members = ({ orgId, members }: MembersProps) => {
         <div className="mt-10">
           <h3 className="text-sm font-medium text-gray-500">Invited members</h3>
           <ul role="list" className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            {justInvitedMembers.map((member, memberIdx) => (
+              <li key={memberIdx}>
+                <button
+                  type="button"
+                  className="group flex w-full items-center justify-between space-x-3 rounded-full border border-gray-300 p-2 text-left shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                >
+                  <span className="flex min-w-0 flex-1 items-center space-x-3">
+                    <span className="block flex-shrink-0">
+                      {/* <img className="h-10 w-10 rounded-full" src={person.imageUrl} alt="" /> */}
+                    </span>
+                    <span className="block min-w-0 flex-1">
+                      {/* <span className="block truncate text-sm font-medium text-gray-900">{member.name}</span> */}
+                      <span className="block truncate text-sm font-medium text-gray-500">{member.phoneNumber}</span>
+                      <span className={`block truncate text-sm font-medium ${member.error ? 'text-red-500' : 'text-green-500'}`}>
+                        {member.error ? member.error : 'invitation successfully sent'}
+                      </span>
+                    </span>
+                  </span>
+                  <span className="inline-flex h-10 w-10 flex-shrink-0 items-center justify-center">
+                    <PaperAirplaneIcon className="h-5 w-5 text-gray-400 group-hover:text-gray-500" aria-hidden="true" />
+                  </span>
+                </button>
+              </li>
+            ))}
             {members.filter(m => !m.joined).map((member, memberIdx) => (
               <li key={memberIdx}>
                 <button
                   type="button"
                   className="group flex w-full items-center justify-between space-x-3 rounded-full border border-gray-300 p-2 text-left shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                  onClick={() => handleResendWhatsappInvitationClick(member.phoneNumber)}
                 >
                   <span className="flex min-w-0 flex-1 items-center space-x-3">
                     <span className="block flex-shrink-0">

@@ -14,3 +14,17 @@ export type SignInInputs = {
 export type ErrorWithMessage = {
   message: string
 }
+
+export interface Member {
+  id: number;
+  name: string;
+  phoneNumber: string;
+  email: string;
+  joined: boolean;
+}
+
+export interface JustInvitedMembers {
+  phoneNumber: string;
+  invited: boolean;
+  error: string
+}
