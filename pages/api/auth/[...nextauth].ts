@@ -1,9 +1,9 @@
-import axios from "axios";
 import NextAuth, { NextAuthOptions} from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import { cookies } from "next/headers";
 import { signIn } from "../../../services/auth";
 import customAxiosInstance from "../../../utils/axios";
-import { SignInInputs } from "../../../utils/types";
+import { SignInInputs } from "../../../types/types";
 
 export const authOptions: NextAuthOptions = {
   session: {
@@ -12,7 +12,7 @@ export const authOptions: NextAuthOptions = {
   },
   pages: {
     signIn: '/auth/sign-in',
-    // signOut: '',
+    signOut: '/auth/sign-in',
     // error: ''
   },
   providers: [
@@ -38,7 +38,7 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
     async session({ session, token }) {
-      session.accessToken = token.accessToken;
+      session.accessToken = token.accessToken as string;
       customAxiosInstance.setToken(session.accessToken as string);
       return session;
     }

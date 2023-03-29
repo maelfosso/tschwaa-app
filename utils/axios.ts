@@ -3,6 +3,7 @@ import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } f
 import { SlowBuffer } from "buffer";
 import { signOut } from "next-auth/react";
 import { catchAxiosError } from "../services/error";
+import { fromJson, toJson } from "./utils";
 
 const isServer = () => typeof window === 'undefined';
 
@@ -52,10 +53,15 @@ class CustomAxiosInstance {
     }
   }
 
-  async get<T>(url: string) {
+  async get<T>(url: string, options: { token?: string } = {}) {
+    const { token } = options;
+    const config = {
+      headers: { Authorization: `Bearer ${token}` }
+    };
     try {
-      const { data } = await this.instance.get<T>(url);
-      return data as T;
+      let { data } = await this.instance.get<T>(url, config);
+      data = fromJson(data) as T;
+      return data;
     } catch (error) {
       throw new Error(axios.isAxiosError(error) ? catchAxiosError(error).error : "An unexpected error occurred");
     }

@@ -30,9 +30,9 @@ export function fromJson<T>(json: any) {
     ) as T)
   }
 
-  return JSON.parse(objectTransformer(
+  return objectTransformer(
     json,
     camelCase,
     true
-  )) as T
+  ) as T
 }

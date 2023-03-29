@@ -1,21 +1,20 @@
-import { Dialog, Menu, Transition } from "@headlessui/react";
-import { BriefcaseIcon, CalendarIcon, CheckIcon, ChevronDownIcon, ChevronRightIcon, CurrencyDollarIcon, LinkIcon, MapPinIcon, PencilIcon, PlusIcon, XMarkIcon } from "@heroicons/react/20/solid";
-import { unstable_getServerSession } from "next-auth";
-import { getSession, useSession } from "next-auth/react";
-import Router from "next/router";
-import React, { Fragment, useEffect, useState } from "react";
+"use client";
+
+import { Dialog, Transition } from "@headlessui/react";
+import { ChevronRightIcon, PlusIcon, XMarkIcon } from "@heroicons/react/20/solid";
+import { useRouter } from "next/navigation";
+import { Fragment, useState } from "react";
 import { getErrorMessage } from "../../helpers/error";
 import Organization from "../../models/organization";
 import customAxiosInstance from "../../utils/axios";
-import { AUTH_SIGN_IN } from "../../utils/constants";
-import { classNames } from "../../utils/utils";
-import { authOptions } from "../api/auth/[...nextauth]"
 
 interface OrgsProps {
   orgs: Organization[]
 }
 
-const Orgs = ({ orgs }: OrgsProps ) => {
+const OrgsPage = ({ orgs }: OrgsProps) => {
+  const router = useRouter();
+
   const [open, setOpen] = useState<boolean>(false)
   const [org, setOrg] = useState<Organization>()
 
@@ -29,7 +28,7 @@ const Orgs = ({ orgs }: OrgsProps ) => {
     try {
       const orgId = await customAxiosInstance.post<number>('/orgs', JSON.stringify(org))
       // window.location.reload();
-      Router.push(`orgs/${orgId}`)
+      router.push(`orgs/${orgId}`)
     } catch (error) {
       console.log("Error ", getErrorMessage(error));
     }
@@ -77,7 +76,7 @@ const Orgs = ({ orgs }: OrgsProps ) => {
     return (
       <div className="overflow-hidden bg-white shadow sm:rounded-md">
         <ul role="list" className="divide-y divide-gray-200">
-          { orgs.map((org) => (
+          { orgs.map((org: Organization) => (
             <li key={`org-${org.id}`} className="py-4 hover:bg-gray-50">
               <a href={`orgs/${org.id}`} className="block">
                 <div className="flex items-center px-4 sm:px-6">
@@ -233,18 +232,4 @@ const Orgs = ({ orgs }: OrgsProps ) => {
   )
 }
 
-export const getServerSideProps = async (context: any) => {
-  // const session = await unstable_getServerSession(
-  //   context.req,
-  //   context.res,
-  //   authOptions
-  // )
-
-  const data = await customAxiosInstance.get("/orgs")
-  console.log('Orgs - ', data);
-  return {
-    props: { orgs: data }
-  }
-}
-
-export default Orgs;
+export default OrgsPage;

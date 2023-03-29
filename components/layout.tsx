@@ -1,33 +1,32 @@
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/router";
-import { ReactElement } from "react";
-import customAxiosInstance from "../utils/axios";
+"use client";
+
+import { ReactNode } from "react";
 import Navbar from "./navbar";
 
 interface LayoutProps {
-  children: ReactElement
+  children: ReactNode
 }
 
 const Layout = ({ children }: LayoutProps ) => {
-  const router = useRouter();
-  const session = useSession();
+  // const router = useRouter();
+  // const session = useSession();
 
-  // if (session.status === 'loading') {
-  //   return <div className="loading" />
+  // // if (session.status === 'loading') {
+  // //   return <div className="loading" />
+  // // }
+
+  // if (session.status === 'authenticated') {
+  //   customAxiosInstance.setToken(session.data.accessToken as string)
   // }
 
-  if (session.status === 'authenticated') {
-    customAxiosInstance.setToken(session.data.accessToken as string)
-  }
-
-  if (router.pathname === '/auth/sign-in' && session.status === 'authenticated') {
-    router.push('/orgs')
-  }
+  // if (router.pathname === '/auth/sign-in' && session.status === 'authenticated') {
+  //   router.push('/orgs')
+  // }
 
   return (
-    <div className="h-screen">
+    <div className="bg-gray-100">
       <Navbar />
-      <main>{children}</main>
+      <main className="flex-1 pb-8">{children}</main>
     </div>
   );
 }

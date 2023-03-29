@@ -1,4 +1,4 @@
-import { ErrorWithMessage } from "../utils/types"
+import { ErrorWithMessage } from "../types/types"
 
 function isErrorWithMessage(error: unknown): error is ErrorWithMessage {
   return (

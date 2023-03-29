@@ -1,12 +1,15 @@
+"use client";
+
 import { LockClosedIcon, XCircleIcon, XMarkIcon } from '@heroicons/react/20/solid'
 import type { NextPage } from "next";
-import { getCsrfToken, signIn } from 'next-auth/react';
+import { signIn } from 'next-auth/react';
 import Link from 'next/link';
-import Router from 'next/router';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { SignInInputs } from '../../utils/types';
+import { SignInInputs } from '../../types/types';
 
 const SignIn: NextPage = (): JSX.Element => {
+  const router = useRouter();
   const [inputs, setInputs] = useState<SignInInputs>({
     username: '',
     password: ''
@@ -22,10 +25,11 @@ const SignIn: NextPage = (): JSX.Element => {
         ...inputs,
         redirect: false
       });
-
+      console.log('response ', res?.ok, res?.status, res?.error)
       if (res?.ok) {
-        const { callbackUrl } = Router.query;
-        Router.replace(callbackUrl ? callbackUrl as string : { pathname: '/orgs'});
+        // const { callbackUrl } = router..query;
+        // router.replace(callbackUrl ? callbackUrl as string : { pathname: '/orgs'});
+        router.replace("/orgs");
       } else {
         // there is an error
         setShowError(true);
@@ -49,10 +53,8 @@ const SignIn: NextPage = (): JSX.Element => {
           </h2>
           <p className='mt-2 text-center text-sm text-gray-600'>
             Or{' '}
-            <Link href="/auth/sign-up">
-              <a className="font-medium text-indigo-600 hover:text-indigo-500">
+            <Link href="/auth/sign-up" className="font-medium text-indigo-600 hover:text-indigo-500">
                 create an account
-              </a>
             </Link>
             {' '} if you don&apos;t have one
           </p>

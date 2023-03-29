@@ -1,3 +1,5 @@
+"use client";
+
 import { XCircleIcon, XMarkIcon } from "@heroicons/react/20/solid";
 import type { NextPage } from "next";
 import Link from 'next/link';
@@ -5,8 +7,8 @@ import Router from "next/router";
 import React, { useState } from 'react';
 import { getErrorMessage } from "../../helpers/error";
 import { signUp } from "../../services/auth";
-import { AUTH_SIGN_IN, AUTH_SIGN_UP } from "../../utils/constants";
-import { SignUpInputs } from "../../utils/types";
+import { AUTH_SIGN_IN } from "../../utils/constants";
+import { SignUpInputs } from "../../types/types";
 
 const SignUp: NextPage = () => {
   const [inputs, setInputs] = useState<SignUpInputs>({
@@ -45,10 +47,8 @@ const SignUp: NextPage = () => {
           </h2>
           <p className='mt-2 text-center text-sm text-gray-600'>
             Or{' '}
-            <Link href="/auth/sign-in">
-              <a href="#" className="font-medium text-indigo-600 hover:text-indigo-500">
+            <Link href="/auth/sign-in" className="font-medium text-indigo-600 hover:text-indigo-500">
                 sign into your an account
-              </a>
             </Link>
             {' '} if you already have one
           </p>
