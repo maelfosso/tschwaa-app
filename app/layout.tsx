@@ -3,6 +3,7 @@ import NextAuthProvider from "./provider";
 import './global.css';
 import { getServerSession, Session } from "next-auth";
 import Layout from "../components/layout";
+import { authOptions } from "@/pages/api/auth/[...nextauth]";
 
 export const metadata = {
   title: 'Tschwaa',
@@ -34,11 +35,13 @@ async function getSession(cookie: string): Promise<Session> {
 }
 
 const RootLayout = async ({ children }: LayoutProps ) => {
+  const session = await getServerSession(authOptions);
+
   return (
-    <html>
-      <body>
+    <html className="h-full bg-gray-50">
+      <body className="h-full">
         <NextAuthProvider>
-          <Layout>{ children }</Layout>
+          <Layout session={session}>{ children }</Layout>
         </NextAuthProvider>
       </body>
     </html>

@@ -3,7 +3,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { cookies } from "next/headers";
 import { signIn } from "../../../services/auth";
 import customAxiosInstance from "../../../utils/axios";
-import { SignInInputs } from "../../../types/types";
+import { SignInInputs } from "../../../types/requests";
 
 export const authOptions: NextAuthOptions = {
   session: {
@@ -24,6 +24,7 @@ export const authOptions: NextAuthOptions = {
         const { username, password } = credentials as SignInInputs;
 
         const data = await signIn({ username, password });
+        console.log('after signin', data);
         return data;
       }
     })
@@ -31,6 +32,7 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt (params) {
       const { token, user } = params;
+      console.log('jwt ', user);
       if (user?.access_token) {
         token.accessToken = user.access_token;
       }
@@ -39,7 +41,7 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       session.accessToken = token.accessToken as string;
-      customAxiosInstance.setToken(session.accessToken as string);
+      // customAxiosInstance.setToken(session.accessToken as string);
       return session;
     }
   }

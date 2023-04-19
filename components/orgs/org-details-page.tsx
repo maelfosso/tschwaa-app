@@ -4,11 +4,11 @@ import { Menu, Transition } from "@headlessui/react";
 import { AcademicCapIcon, BanknotesIcon, Bars4Icon, BriefcaseIcon, CalendarIcon, CheckBadgeIcon, CheckIcon, ChevronDownIcon, ClockIcon, CurrencyDollarIcon, LinkIcon, MapPinIcon, PencilIcon, PhotoIcon, ReceiptRefundIcon, ScaleIcon, TableCellsIcon, UsersIcon, ViewColumnsIcon } from "@heroicons/react/20/solid";
 import { Fragment } from "react";
 import { GetServerSideProps } from 'next'
-import Organization from "../../models/organization";
 import customAxiosInstance from "../../utils/axios";
 import { classNames } from "../../utils/utils";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { Organization } from "@/types/models";
 
 interface OrgDetailsProps {
   org?: Organization
@@ -74,7 +74,7 @@ const announcements = [
 const OrgDetailsPage = ({ org }: OrgDetailsProps) => {
 
   return (
-    <section className="mt-8 mx-auto max-w-3xl px-4 sm:px-6 lg:max-w-7xl lg:px-8">
+    <section className="mt-8 mx-auto px-4 sm:px-6 lg:px-8">
       <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-3 lg:gap-8">
         <div className="grid grid-cols-1 gap-4 lg:col-span-2">
           <h2 className="text-lg font-medium leading-6 text-gray-900">Overview</h2>

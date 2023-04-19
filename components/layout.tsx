@@ -1,13 +1,15 @@
 "use client";
 
-import { ReactNode } from "react";
+import { Session } from "next-auth";
+import { Fragment, ReactNode } from "react";
 import Navbar from "./navbar";
 
 interface LayoutProps {
-  children: ReactNode
+  children: ReactNode,
+  session: Session | null
 }
 
-const Layout = ({ children }: LayoutProps ) => {
+const Layout = ({ children, session }: LayoutProps ) => {
   // const router = useRouter();
   // const session = useSession();
 
@@ -24,10 +26,11 @@ const Layout = ({ children }: LayoutProps ) => {
   // }
 
   return (
-    <div className="bg-gray-100">
-      <Navbar />
-      <main className="flex-1 pb-8">{children}</main>
-    </div>
+    <Fragment>
+      <Navbar user={session?.user!!} />
+      {/* <main className="flex-1 pb-8">{children}</main> */}
+      { children }
+    </Fragment>
   );
 }
 

@@ -2,13 +2,12 @@
 
 import { Dialog, Menu, Transition } from "@headlessui/react";
 import { CheckIcon, ChevronDownIcon, DocumentArrowUpIcon, PaperAirplaneIcon, PlusIcon, TableCellsIcon } from "@heroicons/react/20/solid";
-import { GetServerSideProps } from "next"
 import { Fragment, useState } from "react";
 import { Notification } from "../../notification";
 import { sendInviteOnWhatsapp } from "../../../services/organizations";
-import customAxiosInstance from "../../../utils/axios";
-import { JustInvitedMembers, Member } from "../../../types/types";
 import { fromJson } from "../../../utils/utils";
+import { useSession } from "next-auth/react";
+import { JustInvitedMembers, Member } from "@/types/models";
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ')
@@ -20,6 +19,8 @@ interface MembersPageProps {
 }
 
 const MembersPage = ({ orgId, members }: MembersPageProps) => {
+  const { data: session } = useSession();
+  console.log('member page', session);
   const [phoneNumber, setPhoneNumber] = useState<string>();
   const [showInvitationNotification, setShowInvitationNotification] = useState<boolean>(false);
   const [justInvitedMembers, setJustInvitedMembers] = useState<JustInvitedMembers[]>([])
@@ -27,13 +28,13 @@ const MembersPage = ({ orgId, members }: MembersPageProps) => {
   const [openMembersFileDialog, setOpenMembersFileDialog] = useState<boolean>(false);
 
   const handleSendInviteWhatsappClick = async () => {
-    const data = await sendInviteOnWhatsapp(orgId, phoneNumber!);
+    const data = await sendInviteOnWhatsapp(orgId, phoneNumber!, session?.accessToken as string);
     setShowInvitationNotification(true);
     setJustInvitedMembers(fromJson(data) as JustInvitedMembers[])
   }
 
   const handleResendWhatsappInvitationClick = async (to: string) => {
-    const data = await sendInviteOnWhatsapp(orgId, to!);
+    const data = await sendInviteOnWhatsapp(orgId, to, session?.accessToken as string);
     setShowInvitationNotification(true);
   }
 
@@ -202,7 +203,7 @@ const MembersPage = ({ orgId, members }: MembersPageProps) => {
                       {/* <img className="h-10 w-10 rounded-full" src={person.imageUrl} alt="" /> */}
                     </span>
                     <span className="block min-w-0 flex-1">
-                      <span className="block truncate text-sm font-medium text-gray-900">{member.name}</span>
+                      <span className="block truncate text-sm font-medium text-gray-900">{member.firstName}</span>
                       <span className="block truncate text-sm font-medium text-gray-500">{member.phoneNumber}</span>
                     </span>
                   </span>
@@ -228,7 +229,7 @@ const MembersPage = ({ orgId, members }: MembersPageProps) => {
                       {/* <img className="h-10 w-10 rounded-full" src={person.imageUrl} alt="" /> */}
                     </span>
                     <span className="block min-w-0 flex-1">
-                      <span className="block truncate text-sm font-medium text-gray-900">{person.name}</span>
+                      <span className="block truncate text-sm font-medium text-gray-900">{person.firstName}</span>
                       <span className="block truncate text-sm font-medium text-gray-500">{person.phoneNumber}</span>
                     </span>
                   </span>

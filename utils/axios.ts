@@ -44,9 +44,13 @@ class CustomAxiosInstance {
     console.log('axios set token: ', token);
   }
 
-  async post<T>(url: string, inputs: URLSearchParams | string) {
+  async post<T>(url: string, inputs: URLSearchParams | string, options: { token?: string } = {}) {
+    const { token } = options;
+    const config = {
+      headers: { Authorization: `Bearer ${token}` }
+    };
     try {
-      const { data } = await this.instance.post<T>(url, inputs);
+      const { data } = await this.instance.post<T>(url, inputs, config);
       return data as T;
     } catch (error) {
       throw new Error(axios.isAxiosError(error) ? catchAxiosError(error).error : "An unexpected error occurred");

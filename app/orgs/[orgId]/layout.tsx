@@ -1,6 +1,6 @@
 import OrganizationLayout from "@/components/orgs/org-layout";
-import Organization from "@/models/organization";
 import { authOptions } from "@/pages/api/auth/[...nextauth]";
+import { Organization } from "@/types/models";
 import customAxiosInstance from "@/utils/axios";
 import { getServerSession } from "next-auth";
 

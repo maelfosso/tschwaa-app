@@ -1,11 +1,11 @@
-import NextAuth, { Account, DefaultSession, User } from "next-auth";
+import NextAuth, { Account, DefaultSession, DefaultUser, User } from "next-auth";
 
 declare module "next-auth" {
   interface Session {
     accessToken?: string;
   }
 
-  interface User {
+  interface User extends DefaultUser {
     access_token?: string;
   }
 }
