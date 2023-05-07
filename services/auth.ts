@@ -5,7 +5,6 @@ import { fromJson, toJson } from "@/utils/utils";
 
 export const signUp = async (inputs: SignUpInputs) => {
   const jsonInputs = toJson(inputs);
-  console.log('sign up ', jsonInputs);
 
   return await customAxiosInstance.post<any>(API_AUTH_SIGN_UP, jsonInputs);
 }

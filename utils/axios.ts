@@ -29,7 +29,6 @@ class CustomAxiosInstance {
   }
 
   onRequestRejected(error: AxiosError) {
-    console.log("Interceptors Errors");
     if (error?.response?.status == 401) {
       window.location.href = '/auth/sign-in'
       return
@@ -41,7 +40,6 @@ class CustomAxiosInstance {
   setToken(token: string) {
     axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     this.instance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    console.log('axios set token: ', token);
   }
 
   async post<T>(url: string, inputs: URLSearchParams | string, options: { token?: string } = {}) {

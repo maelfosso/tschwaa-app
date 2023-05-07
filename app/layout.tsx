@@ -15,7 +15,6 @@ interface LayoutProps {
 }
 
 async function getSession(cookie: string): Promise<Session> {
-  console.log('get session', process.env.NEXTAUTH_URL);
   const response = await fetch(`${process.env.NEXTAUTH_URL}/api/auth/session`, {
     headers: {
       cookie,
@@ -25,10 +24,8 @@ async function getSession(cookie: string): Promise<Session> {
   });
   if (!response.ok) {
     const message = `An error has occured: ${response.status}`;
-    console.log('response - ', message);
     throw new Error(message);
   }
-  console.log("Response JSON", await response.json());
   const session = await response.json();
   
   return Object.keys(session).length > 0 ? session : null;

@@ -19,5 +19,5 @@ const getInvitation = async (joinId: string): Promise<any> => {
 export default async function Page({ params: { joinId }}: Props) {
   const invitation = await getInvitation(joinId);
 
-  return <Join invitation={invitation}></Join>
+  return <Join {...invitation}></Join>
 }

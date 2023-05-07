@@ -24,7 +24,6 @@ export const authOptions: NextAuthOptions = {
         const { username, password } = credentials as SignInInputs;
 
         const data = await signIn({ username, password });
-        console.log('after signin', data);
         return data;
       }
     })

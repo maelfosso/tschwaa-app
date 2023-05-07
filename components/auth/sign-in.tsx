@@ -25,7 +25,6 @@ const SignIn: NextPage = (): JSX.Element => {
         ...inputs,
         redirect: false
       });
-      console.log('response ', res?.ok, res?.status, res?.error)
       if (res?.ok) {
         // const { callbackUrl } = router..query;
         // router.replace(callbackUrl ? callbackUrl as string : { pathname: '/orgs'});

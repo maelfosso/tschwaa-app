@@ -1,41 +1,282 @@
 "use client";
 
 import { getErrorMessage } from "@/helpers/error";
-import { Invitation, Member } from "@/types/models";
+import { Adhesion, Invitation, Member, Organization } from "@/types/models";
 import customAxiosInstance from "@/utils/axios";
 import { AUTH_SIGN_IN } from "@/utils/constants";
 import { Dialog, Transition } from "@headlessui/react";
-import { CheckIcon, XCircleIcon, XMarkIcon } from "@heroicons/react/20/solid";
+import { CheckCircleIcon, CheckIcon, XCircleIcon, XMarkIcon } from "@heroicons/react/20/solid";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Fragment, useState } from "react";
 
 type Props = {
-  invitation: Invitation;
+  // invitation: Invitation;
+  link: string;
+  active: boolean;
+  adhesion: Adhesion;
+  organization: Organization;
+  member: Member;
+  code?: string;
 }
 
 type InputType = Member & { password: string };
 
-const Join = ({ invitation }: Props) => {
+const INVITATION_STATUS_S601 = "S601";
+const INVITATION_STATUS_S602 = "S602";
+
+const FromNotConnectedButAccounted = ({ link, member, organization, code }: Props) => {
+  const [open, setOpen] = useState<boolean>(false);
+  const router = useRouter();
+
+  const onJoin = async () => {
+    try {
+      const data = await customAxiosInstance.post(`/join/${link}`, JSON.stringify({ code }));
+      setOpen(true);
+    } catch (error) {
+      console.log('on join : ', error);
+    }
+  }
+
+  const onCloseModal = () => {
+    setOpen(false);
+    router.push(AUTH_SIGN_IN);
+  }
+
+  return (
+    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-3xl">
+        <div className="rounded-md bg-green-50 p-4">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <CheckCircleIcon className="h-5 w-5 text-green-400" aria-hidden="true" />
+            </div>
+            <div className="ml-3">
+              <h3 className="text-sm font-medium text-green-800">Join an organization?</h3>
+              <div className="mt-2 text-sm text-green-700">
+                <p>{ `${member.firstName} ${member.lastName}` }, you are about to join the { organization.name } organization</p>
+                <br/>
+                <p>Are you sure you want to join that organization?</p>
+              </div>
+              <div className="mt-4">
+                <div className="-mx-2 -my-1.5 flex">
+                  <button
+                    onClick={(e) => onJoin()}
+                    type="button"
+                    className="rounded-md bg-green-50 px-2 py-1.5 text-sm font-medium text-green-800 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2 focus:ring-offset-green-50"
+                  >
+                    Yes, I want to join it!
+                  </button>
+                  {/* <button
+                    type="button"
+                    className="ml-3 rounded-md bg-green-50 px-2 py-1.5 text-sm font-medium text-green-800 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2 focus:ring-offset-green-50"
+                  >
+                    Dismiss
+                  </button> */}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <Transition.Root show={open} as={Fragment}>
+          <Dialog as="div" className="relative z-10" onClose={onCloseModal}>
+            <Transition.Child
+              as={Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0"
+              enterTo="opacity-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100"
+              leaveTo="opacity-0"
+            >
+              <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
+            </Transition.Child>
+
+            <div className="fixed inset-0 z-10 overflow-y-auto">
+              <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+                <Transition.Child
+                  as={Fragment}
+                  enter="ease-out duration-300"
+                  enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                  enterTo="opacity-100 translate-y-0 sm:scale-100"
+                  leave="ease-in duration-200"
+                  leaveFrom="opacity-100 translate-y-0 sm:scale-100"
+                  leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                >
+                  <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-sm sm:p-6">
+                    <div>
+                      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
+                        <CheckIcon className="h-6 w-6 text-green-600" aria-hidden="true" />
+                      </div>
+                      <div className="mt-3 text-center sm:mt-5">
+                        <Dialog.Title as="h3" className="text-base font-semibold leading-6 text-gray-900">
+                          Membership granted
+                        </Dialog.Title>
+                        <div className="mt-2">
+                          <p className="text-sm text-gray-500">
+                            Now, you are a member of the organization {organization.name}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="mt-5 sm:mt-6">
+                      <button
+                        type="button"
+                        className="inline-flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                        onClick={() => onCloseModal()}
+                      >
+                        Join other members
+                      </button>
+                    </div>
+                  </Dialog.Panel>
+                </Transition.Child>
+              </div>
+            </div>
+          </Dialog>
+        </Transition.Root>
+      </div>
+    </div>
+  )
+}
+
+const FromConnectedAndAccount = ({ link, member, organization, code }: Props) => {
+  const [open, setOpen] = useState<boolean>(false);
+  const router = useRouter();
+
+  const onJoin = async () => {
+    try {
+      const data = await customAxiosInstance.post(`/join/${link}`, JSON.stringify({ code }));
+      setOpen(true);
+    } catch (error) {
+      console.log('on join : ', error);
+    }
+  }
+
+  const onCloseModal = () => {
+    setOpen(false);
+    router.push(`/orgs/${organization.id}`);
+  }
+
+  return (
+    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-3xl">
+        <div className="rounded-md bg-green-50 p-4">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <CheckCircleIcon className="h-5 w-5 text-green-400" aria-hidden="true" />
+            </div>
+            <div className="ml-3">
+              <h3 className="text-sm font-medium text-green-800">Joined the organization</h3>
+              <div className="mt-2 text-sm text-green-700">
+                <p>{ `${member.firstName} ${member.lastName}` }, you are about to join the { organization.name } organization</p>
+                <br/>
+                <p>Are you sure you want to join that organization?</p>
+              </div>
+              <div className="mt-4">
+                <div className="-mx-2 -my-1.5 flex">
+                  <button
+                    onClick={(e) => onJoin()}
+                    type="button"
+                    className="rounded-md bg-green-50 px-2 py-1.5 text-sm font-medium text-green-800 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2 focus:ring-offset-green-50"
+                  >
+                    Go to {organization.name}
+                  </button>
+                  {/* <button
+                    type="button"
+                    className="ml-3 rounded-md bg-green-50 px-2 py-1.5 text-sm font-medium text-green-800 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2 focus:ring-offset-green-50"
+                  >
+                    Dismiss
+                  </button> */}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+
+        <Transition.Root show={open} as={Fragment}>
+          <Dialog as="div" className="relative z-10" onClose={onCloseModal}>
+            <Transition.Child
+              as={Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0"
+              enterTo="opacity-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100"
+              leaveTo="opacity-0"
+            >
+              <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
+            </Transition.Child>
+
+            <div className="fixed inset-0 z-10 overflow-y-auto">
+              <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+                <Transition.Child
+                  as={Fragment}
+                  enter="ease-out duration-300"
+                  enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                  enterTo="opacity-100 translate-y-0 sm:scale-100"
+                  leave="ease-in duration-200"
+                  leaveFrom="opacity-100 translate-y-0 sm:scale-100"
+                  leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                >
+                  <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-sm sm:p-6">
+                    <div>
+                      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
+                        <CheckIcon className="h-6 w-6 text-green-600" aria-hidden="true" />
+                      </div>
+                      <div className="mt-3 text-center sm:mt-5">
+                        <Dialog.Title as="h3" className="text-base font-semibold leading-6 text-gray-900">
+                          Membership granted
+                        </Dialog.Title>
+                        <div className="mt-2">
+                          <p className="text-sm text-gray-500">
+                            Now, you are a member of the organization {organization.name}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="mt-5 sm:mt-6">
+                      <button
+                        type="button"
+                        className="inline-flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                        onClick={() => onCloseModal()}
+                      >
+                        Join other members
+                      </button>
+                    </div>
+                  </Dialog.Panel>
+                </Transition.Child>
+              </div>
+            </div>
+          </Dialog>
+        </Transition.Root>
+      </div>
+    </div>
+  );
+}
+
+const FromFullInvitation = ({
+  link, organization, member
+}: Props) => {
   const [inputs, setInputs] = useState<InputType>({
-    id: invitation.member.id,
-    firstName: invitation.member.firstName,
-    lastName: invitation.member.lastName,
-    sex: invitation.member.sex,
-    email: invitation.member.email,
-    phoneNumber: invitation.member.phoneNumber,
+    id: member.id,
+    firstName: member.firstName,
+    lastName: member.lastName,
+    sex: member.sex,
+    email: member.email,
+    phone: member.phone,
     password: '',
-    joined: true
   });
   const [error, setSubmissionError] = useState<string>();
   const [showError, setShowError] = useState<boolean>(false);
   const [open, setOpen] = useState<boolean>(false);
+
   const router = useRouter();
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    const { link } = invitation;
-    console.log('on submit ', inputs);
     
     try {
       const data = await customAxiosInstance.post(`/join/${link}`, JSON.stringify(inputs));
@@ -63,9 +304,9 @@ const Join = ({ invitation }: Props) => {
           <div className="grid grid-cols-1 gap-x-8 gap-y-10 border-b border-gray-900/10 pb-12 md:grid-cols-3">
             <div className="">
               <h1 className="text-sm font-medium text-indigo-600">Invitation to join</h1>
-              <p className="mt-2 text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">Welcome M/Mrs {`${invitation.member.firstName ?? ''} ${invitation.member.lastName ?? ''}`} </p>
+              <p className="mt-2 text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">Welcome M/Mrs {`${member.firstName ?? ''} ${member.lastName ?? ''}`} </p>
               <p className="mt-2 text-base text-gray-500">
-                We thank you for accepting join the organization {invitation.organization.name}
+                We thank you for accepting join the organization {organization.name}
               </p>
 
               { error && showError && <div className='rounded-md bg-red-50 p-4'>
@@ -181,9 +422,9 @@ const Join = ({ invitation }: Props) => {
                         name="phone"
                         type="phone"
                         autoComplete="phone"
-                        value={inputs.phoneNumber}
+                        value={inputs.phone}
                         required
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInputs({...inputs, phoneNumber: e.target.value})}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInputs({...inputs, phone: e.target.value})}
                         className="block w-full rounded-md border-0 px-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                         placeholder="Phone number"
                       />
@@ -201,7 +442,7 @@ const Join = ({ invitation }: Props) => {
                         type="password"
                         value={inputs.password}
                         required
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInputs({...inputs, phoneNumber: e.target.value})}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInputs({...inputs, password: e.target.value})}
                         className="block w-full rounded-md border-0 px-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                         placeholder="Your password"
                       />
@@ -258,7 +499,7 @@ const Join = ({ invitation }: Props) => {
                       </Dialog.Title>
                       <div className="mt-2">
                         <p className="text-sm text-gray-500">
-                          Now, you are a member of the organization {invitation.organization.name}
+                          Now, you are a member of the organization {organization.name}
                         </p>
                       </div>
                     </div>
@@ -279,6 +520,28 @@ const Join = ({ invitation }: Props) => {
         </Dialog>
       </Transition.Root>
     </div>
+  )
+}
+
+const Join = (props: Props) => {
+  const { code } = props;
+
+  if (code) {
+    if (code === INVITATION_STATUS_S601) {
+      return (
+        <FromConnectedAndAccount {...props} />
+      )
+    } else if (code === INVITATION_STATUS_S602) {
+      return (
+        <FromNotConnectedButAccounted {...props} />
+      )
+    }
+  }
+
+  return (
+    <FromFullInvitation
+      {...props}
+    />
   )
 }
 

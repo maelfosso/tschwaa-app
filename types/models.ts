@@ -4,13 +4,24 @@ export interface Member {
   firstName: string;
   lastName: string;
   sex: string;
-  phoneNumber: string;
+  phone: string;
   email: string;
-  joined: boolean;
 }
 
+export interface Adhesion {
+  id: number;
+  joined:  Date;
+  jointAt: Date;
+
+  position: string;
+  role:     string;
+  status:   string;
+}
+
+export type OrganizationMember = Omit<Member, "id"> & Omit<Adhesion, "id">;
+
 export interface JustInvitedMembers {
-  phoneNumber: string;
+  phone: string;
   invited: boolean;
   error: string
 }

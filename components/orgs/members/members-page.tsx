@@ -1,13 +1,14 @@
 "use client"
 
 import { Dialog, Menu, Transition } from "@headlessui/react";
-import { CheckIcon, ChevronDownIcon, DocumentArrowUpIcon, PaperAirplaneIcon, PlusIcon, TableCellsIcon } from "@heroicons/react/20/solid";
+import { ChatBubbleBottomCenterIcon, CheckIcon, ChevronDownIcon, DocumentArrowUpIcon, EllipsisHorizontalIcon, EnvelopeIcon, PaperAirplaneIcon, PlusIcon, TableCellsIcon } from "@heroicons/react/20/solid";
 import { Fragment, useState } from "react";
 import { Notification } from "../../notification";
 import { sendInviteOnWhatsapp } from "../../../services/organizations";
 import { fromJson } from "../../../utils/utils";
 import { useSession } from "next-auth/react";
-import { JustInvitedMembers, Member } from "@/types/models";
+import { JustInvitedMembers, Member, OrganizationMember } from "@/types/models";
+import InviteMembersFromTable from "./invite-members-from-table";
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ')
@@ -15,20 +16,19 @@ function classNames(...classes: string[]) {
 
 interface MembersPageProps {
   orgId: number;
-  members: Member[];
+  members: OrganizationMember[];
 }
 
 const MembersPage = ({ orgId, members }: MembersPageProps) => {
   const { data: session } = useSession();
-  console.log('member page', session);
-  const [phoneNumber, setPhoneNumber] = useState<string>();
+  const [phone, setPhoneNumber] = useState<string>();
   const [showInvitationNotification, setShowInvitationNotification] = useState<boolean>(false);
-  const [justInvitedMembers, setJustInvitedMembers] = useState<JustInvitedMembers[]>([])
+  const [justInvitedMembers, setJustInvitedMembers] = useState<JustInvitedMembers[]>([]);
   const [openMembersTableDialog, setOpenMembersTableDialog] = useState<boolean>(false);
   const [openMembersFileDialog, setOpenMembersFileDialog] = useState<boolean>(false);
 
   const handleSendInviteWhatsappClick = async () => {
-    const data = await sendInviteOnWhatsapp(orgId, phoneNumber!, session?.accessToken as string);
+    const data = await sendInviteOnWhatsapp(orgId, phone!, session?.accessToken as string);
     setShowInvitationNotification(true);
     setJustInvitedMembers(fromJson(data) as JustInvitedMembers[])
   }
@@ -52,11 +52,11 @@ const MembersPage = ({ orgId, members }: MembersPageProps) => {
         show={showInvitationNotification}
         onClose={() => setShowInvitationNotification(false)}
         title="Invitations sent"
-        content={`a message has been sent to the number ${phoneNumber}`}
+        content={`a message has been sent to the number ${phone}`}
       />
 
-      <div className="mx-auto max-w-md sm:max-w-3xl">
-        <div className="overflow-hidden rounded-lg bg-white shadow">
+      <div className="w-full">
+        <div className="mx-auto max-w-md sm:max-w-3xl overflow-hidden rounded-lg bg-white shadow">
           <div className="p-6">
             <div className="text-center">
               <svg
@@ -166,7 +166,7 @@ const MembersPage = ({ orgId, members }: MembersPageProps) => {
         </div>
         <div className="mt-10">
           <h3 className="text-sm font-medium text-gray-500">Invited members</h3>
-          <ul role="list" className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <ul role="list" className="mt-4 grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             {justInvitedMembers.map((member, memberIdx) => (
               <li key={memberIdx}>
                 <button
@@ -179,7 +179,7 @@ const MembersPage = ({ orgId, members }: MembersPageProps) => {
                     </span>
                     <span className="block min-w-0 flex-1">
                       {/* <span className="block truncate text-sm font-medium text-gray-900">{member.name}</span> */}
-                      <span className="block truncate text-sm font-medium text-gray-500">{member.phoneNumber}</span>
+                      <span className="block truncate text-sm font-medium text-gray-500">{member.phone}</span>
                       <span className={`block truncate text-sm font-medium ${member.error ? 'text-red-500' : 'text-green-500'}`}>
                         {member.error ? member.error : 'invitation successfully sent'}
                       </span>
@@ -196,7 +196,7 @@ const MembersPage = ({ orgId, members }: MembersPageProps) => {
                 <button
                   type="button"
                   className="group flex w-full items-center justify-between space-x-3 rounded-full border border-gray-300 p-2 text-left shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                  onClick={() => handleResendWhatsappInvitationClick(member.phoneNumber)}
+                  onClick={() => handleResendWhatsappInvitationClick(member.phone)}
                 >
                   <span className="flex min-w-0 flex-1 items-center space-x-3">
                     <span className="block flex-shrink-0">
@@ -204,7 +204,7 @@ const MembersPage = ({ orgId, members }: MembersPageProps) => {
                     </span>
                     <span className="block min-w-0 flex-1">
                       <span className="block truncate text-sm font-medium text-gray-900">{member.firstName}</span>
-                      <span className="block truncate text-sm font-medium text-gray-500">{member.phoneNumber}</span>
+                      <span className="block truncate text-sm font-medium text-gray-500">{member.phone}</span>
                     </span>
                   </span>
                   <span className="inline-flex h-10 w-10 flex-shrink-0 items-center justify-center">
@@ -217,26 +217,48 @@ const MembersPage = ({ orgId, members }: MembersPageProps) => {
         </div>
         <div className="mt-10">
           <h3 className="text-sm font-medium text-gray-500">Members</h3>
-          <ul role="list" className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-            {members.filter(m => m.joined).map((person, personIdx) => (
-              <li key={personIdx}>
-                <button
-                  type="button"
-                  className="group flex w-full items-center justify-between space-x-3 rounded-full border border-gray-300 p-2 text-left shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                >
-                  <span className="flex min-w-0 flex-1 items-center space-x-3">
-                    <span className="block flex-shrink-0">
-                      {/* <img className="h-10 w-10 rounded-full" src={person.imageUrl} alt="" /> */}
-                    </span>
-                    <span className="block min-w-0 flex-1">
-                      <span className="block truncate text-sm font-medium text-gray-900">{person.firstName}</span>
-                      <span className="block truncate text-sm font-medium text-gray-500">{person.phoneNumber}</span>
-                    </span>
-                  </span>
-                  <span className="inline-flex h-10 w-10 flex-shrink-0 items-center justify-center">
-                    <PlusIcon className="h-5 w-5 text-gray-400 group-hover:text-gray-500" aria-hidden="true" />
-                  </span>
-                </button>
+          <ul role="list" className="mt-4 grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            {members.filter(m => m.joined).map((member, memberIdx) => (
+              <li
+                key={member.phone}
+                className="col-span-1 flex flex-col divide-y divide-gray-200 rounded-lg bg-white text-center shadow"
+              >
+                <div className="flex flex-1 flex-col p-8">
+                  {/* <img className="mx-auto h-32 w-32 flex-shrink-0 rounded-full" src={person.imageUrl} alt="" /> */}
+                  <h3 className="mt-6 text-sm font-medium text-gray-900">{`${member.firstName} ${member.lastName}`}</h3>
+                  <dl className="mt-1 flex flex-grow flex-col justify-between">
+                    <dt className="sr-only">Title</dt>
+                    <dd className="text-sm text-gray-500">{member.position}</dd>
+                    <dt className="sr-only">Role</dt>
+                    <dd className="mt-3">
+                      <span className="inline-flex items-center rounded-full bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
+                        {member.role}
+                      </span>
+                    </dd>
+                  </dl>
+                </div>
+                <div>
+                  <div className="-mt-px flex divide-x divide-gray-200">
+                    <div className="flex w-0 flex-1">
+                      <a
+                        href={`mailto:${member.email}`}
+                        className="relative -mr-px inline-flex w-0 flex-1 items-center justify-center gap-x-3 rounded-bl-lg border border-transparent py-4 text-sm font-semibold text-gray-900"
+                      >
+                        <EnvelopeIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
+                        Email
+                      </a>
+                    </div>
+                    <div className="-ml-px flex w-0 flex-1">
+                      <a
+                        href={`tel:${member.phone}`}
+                        className="relative inline-flex w-0 flex-1 items-center justify-center gap-x-3 rounded-br-lg border border-transparent py-4 text-sm font-semibold text-gray-900"
+                      >
+                        <ChatBubbleBottomCenterIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
+                        Whatsapp
+                      </a>
+                    </div>
+                  </div>
+                </div>
               </li>
             ))}
           </ul>
@@ -268,8 +290,8 @@ const MembersPage = ({ orgId, members }: MembersPageProps) => {
                 leaveFrom="opacity-100 translate-y-0 sm:scale-100"
                 leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
               >
-                <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white px-4 pt-5 pb-4 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-sm sm:p-6">
-                  <div>
+                <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white px-4 pt-5 pb-4 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-7xl sm:p-6">
+                  {/* <div>
                     <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
                       <CheckIcon className="h-6 w-6 text-green-600" aria-hidden="true" />
                     </div>
@@ -292,7 +314,8 @@ const MembersPage = ({ orgId, members }: MembersPageProps) => {
                     >
                       Go back to dashboard
                     </button>
-                  </div>
+                  </div> */}
+                  <InviteMembersFromTable orgId={orgId} token={session?.accessToken as string} />
                 </Dialog.Panel>
               </Transition.Child>
             </div>
