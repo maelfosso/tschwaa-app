@@ -14,7 +14,7 @@ type Props = {
   // invitation: Invitation;
   link: string;
   active: boolean;
-  adhesion: Adhesion;
+  // adhesion: Adhesion;
   organization: Organization;
   member: Member;
   code?: string;
@@ -180,7 +180,7 @@ const FromConnectedAndAccount = ({ link, member, organization, code }: Props) =>
                     type="button"
                     className="rounded-md bg-green-50 px-2 py-1.5 text-sm font-medium text-green-800 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2 focus:ring-offset-green-50"
                   >
-                    Go to {organization.name}
+                    Yes, I want to join {organization.name}
                   </button>
                   {/* <button
                     type="button"
@@ -257,7 +257,7 @@ const FromConnectedAndAccount = ({ link, member, organization, code }: Props) =>
   );
 }
 
-const FromFullInvitation = ({
+const FromNewMember = ({
   link, organization, member
 }: Props) => {
   const [inputs, setInputs] = useState<InputType>({
@@ -539,7 +539,7 @@ const Join = (props: Props) => {
   }
 
   return (
-    <FromFullInvitation
+    <FromNewMember
       {...props}
     />
   )
