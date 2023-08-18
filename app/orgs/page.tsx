@@ -4,6 +4,7 @@ import customAxiosInstance from "../../utils/axios";
 import OrgsPage from "../../components/orgs/orgs-page";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../pages/api/auth/[...nextauth]";
+import Layout from "@/components/layout";
 
 const getOrgs = async () => {
   const session = await getServerSession(authOptions);
