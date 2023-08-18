@@ -10,7 +10,7 @@ export interface Member {
 
 export interface Adhesion {
   id: number;
-  joined:  Date;
+  joined:  boolean;
   jointAt: Date;
 
   position: string;
@@ -18,7 +18,7 @@ export interface Adhesion {
   status:   string;
 }
 
-export type OrganizationMember = Omit<Member, "id"> & Omit<Adhesion, "id">;
+export type OrganizationMember = Member & Omit<Adhesion, "id">;
 
 export interface JustInvitedMembers {
   phone: string;
