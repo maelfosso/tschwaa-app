@@ -35,7 +35,7 @@ const RootLayout = async ({ children }: LayoutProps ) => {
   const session = await getServerSession(authOptions);
 
   return (
-    <html className="h-full bg-gray-50">
+    <html className="h-full">
       <body className="h-full">
         <NextAuthProvider>
           <Layout session={session}>{ children }</Layout>
