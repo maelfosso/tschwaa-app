@@ -1,7 +1,7 @@
 "use client";
 
 import Organization from "@/models/organization";
-import { Bars3Icon, BellIcon, BuildingOfficeIcon, CalendarIcon, CheckCircleIcon, ChevronDownIcon, ChevronUpDownIcon, Cog6ToothIcon, ExclamationCircleIcon, FolderIcon, HomeIcon, MagnifyingGlassIcon, PencilSquareIcon, UsersIcon, XMarkIcon } from "@heroicons/react/20/solid";
+import { ArrowLeftIcon, Bars3Icon, BellIcon, BuildingOfficeIcon, CalendarIcon, CheckCircleIcon, ChevronDownIcon, ChevronLeftIcon, ChevronUpDownIcon, Cog6ToothIcon, ExclamationCircleIcon, FolderIcon, HomeIcon, MagnifyingGlassIcon, PencilSquareIcon, UsersIcon, XMarkIcon } from "@heroicons/react/20/solid";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -149,7 +149,7 @@ const OrganizationLayout = ({ children, org }: OrganizationLayoutProps) => {
   const pathname = usePathname();
   const session = useSession();
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [openSwitchOrg, setOpenSwitchOrg] = useState(true)
+  const [openSwitchOrg, setOpenSwitchOrg] = useState(false)
 
   return (
     <div>
@@ -300,7 +300,7 @@ const OrganizationLayout = ({ children, org }: OrganizationLayoutProps) => {
                   {navigation.map((item) => (
                     <li key={item.name}>
                       <a
-                        href={item.href}
+                        href={`/orgs/${org.id}${item.href}`}
                         className={classNames(
                           item.current
                             ? 'bg-gray-50 text-indigo-600'
@@ -400,7 +400,7 @@ const OrganizationLayout = ({ children, org }: OrganizationLayoutProps) => {
 
       <div className="lg:pl-72">
         <div className="sticky top-0 z-40">
-          <div className="flex h-16 items-center gap-x-4 border-b border-gray-200 bg-white px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8 lg:shadow-none">
+          <div className="flex h-16 items-center gap-x-4 border-b border-gray-200 bg-white pr-4 shadow-sm sm:gap-x-6 sm:pr-6 lg:pr-8 lg:shadow-none">
             <button
               type="button"
               className="-m-2.5 p-2.5 text-gray-700 lg:hidden"
@@ -415,6 +415,14 @@ const OrganizationLayout = ({ children, org }: OrganizationLayoutProps) => {
 
             <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
               <div className="flex-1 h-full sm:flex sm:justify-between sm:items-center">
+                <div className="w-4 sm:w-6 lg:w-8">
+                  <button
+                    type="button"
+                    onClick={() => window.history.back()}
+                  >
+                    <ChevronLeftIcon className="h-5 w-5" aria-hidden="true"/>
+                  </button>
+                </div>
                 <div className="sm:w-0 sm:flex-1">
                   <h1 id="message-heading" className="text-2xl font-semibold leading-6 text-gray-900">
                     { org.name }
@@ -495,7 +503,7 @@ const OrganizationLayout = ({ children, org }: OrganizationLayoutProps) => {
         </div>
 
         <main className="py-4">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">{ children }</div>
+          <div className="">{ children }</div>
         </main>
       </div>
 

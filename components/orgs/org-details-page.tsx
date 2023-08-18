@@ -74,7 +74,7 @@ const announcements = [
 const OrgDetailsPage = ({ org }: OrgDetailsProps) => {
 
   return (
-    <section className="">
+    <section className="sm:px-6 lg:px-8">
       <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-3 lg:gap-8">
         <div className="grid grid-cols-1 gap-4 lg:col-span-2">
           <h2 className="text-lg font-medium leading-6 text-gray-900">Overview</h2>
