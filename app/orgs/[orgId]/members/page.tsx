@@ -22,6 +22,6 @@ export default async function Page({ params: { orgId }}: PageProps) {
   const members = await getMembers(orgId);
 
   console.log('members : ', members);
-  return <MembersPage orgId={orgId} members={members} />
+  return <MembersPage organizationId={orgId} members={members} />
 }
 

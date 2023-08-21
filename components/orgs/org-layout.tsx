@@ -74,7 +74,7 @@ const SwitchingOrganization = ({ open, onClose }: { open: boolean, onClose: () =
             leaveTo="opacity-0 scale-95"
           >
             <Dialog.Panel className="mx-auto max-w-xl transform divide-y divide-gray-100 overflow-hidden rounded-xl bg-white shadow-2xl ring-1 ring-black ring-opacity-5 transition-all">
-              <Combobox onChange={(item) => (window.location = item.url)}>
+              <Combobox onChange={(item) => console.log('combobox changed : ', item)}>
                 <div className="relative">
                   <MagnifyingGlassIcon
                     className="pointer-events-none absolute left-4 top-3.5 h-5 w-5 text-gray-400"
