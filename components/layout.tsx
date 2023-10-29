@@ -109,7 +109,7 @@ const DefaultLayout = ({ children }: { children: ReactNode }) => {
 const HomeLayout = ({ children }: { children: ReactNode }) => {
   const session = useSession();
 
-  if (session?.user!!) {
+  if (session?.status === 'authenticated') {
     return (
       <div className="min-h-full">
         <Disclosure as="nav" className="bg-white shadow">
