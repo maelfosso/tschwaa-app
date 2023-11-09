@@ -358,6 +358,9 @@ const Layout = ({ children, session }: LayoutProps ) => {
   if (pathname?.startsWith("/auth")) {
     return <HorizontalLayout>{ children }</HorizontalLayout>
   }
+  if (pathname?.startsWith("/orgs/")) {
+    return <>{ children }</>
+  }
 }
 
 export default Layout;
