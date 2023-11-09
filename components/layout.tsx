@@ -2,7 +2,7 @@
 
 import { Session } from "next-auth";
 import { Fragment, ReactNode, useState } from "react";
-import Navbar from "./navbar";
+import Navbar, { UnauthenticatedNavbar } from "./navbar";
 import { Bars3Icon, BellIcon, CalendarIcon, ChartPieIcon, DocumentDuplicateIcon, FolderIcon, HomeIcon, PlusIcon, UsersIcon, XMarkIcon } from "@heroicons/react/20/solid";
 import { Dialog, Disclosure, Menu, Transition } from "@headlessui/react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -104,6 +104,19 @@ const DefaultLayout = ({ children }: { children: ReactNode }) => {
       { children }
     </main>
   </div>)
+}
+
+const HorizontalLayout = ({ children }: { children: ReactNode }) => {
+  return (
+    <div className="min-h-full">
+      <UnauthenticatedNavbar />
+      <div className="py-10">
+        <main>
+          <div className="">{children}</div>
+        </main>
+      </div>
+    </div>
+  )
 }
 
 const HomeLayout = ({ children }: { children: ReactNode }) => {
@@ -332,19 +345,19 @@ const HomeLayout = ({ children }: { children: ReactNode }) => {
 }
 
 const Layout = ({ children, session }: LayoutProps ) => {
-  const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
 
-  return (
-    <>
-      {
-        (pathname === "/" || pathname === "/orgs")
-          ? <HomeLayout>{children}</HomeLayout>
-          : <>{children}</>
-      }
-    </>
-  )
+  console.log(pathname);
+
+  if (pathname === "/") {
+    return <>{ children }</>
+  }
+  if (pathname === "/orgs") {
+    return <HomeLayout>{ children }</HomeLayout>
+  }
+  if (pathname?.startsWith("/auth")) {
+    return <HorizontalLayout>{ children }</HorizontalLayout>
+  }
 }
 
 export default Layout;
