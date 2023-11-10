@@ -1,7 +1,7 @@
 "use client"
 
 import { Dialog, Menu, Transition } from "@headlessui/react";
-import { EllipsisVerticalIcon, ExclamationCircleIcon, PaperAirplaneIcon, PencilSquareIcon, PhoneIcon, PlusIcon, TrashIcon, UserPlusIcon, XMarkIcon } from "@heroicons/react/20/solid";
+import { EllipsisVerticalIcon, ExclamationCircleIcon, PaperAirplaneIcon, PencilSquareIcon, CheckCircleIcon, PhoneIcon, PlusIcon, TrashIcon, UserPlusIcon, XMarkIcon } from "@heroicons/react/20/solid";
 import { Fragment, useEffect, useState } from "react";
 import { Notification } from "../../notification";
 import { sendInviteOnWhatsapp, sendMultipleWhatsappInvitation } from "../../../services/organizations";
@@ -26,7 +26,10 @@ interface AddMemberProps {
   memberId: number;
   organizationId: number;
   onClose: () => void;
-}
+}<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+</svg>
+
 
 const MemberUI = ({ open, onClose, memberId, organizationId }: AddMemberProps) => {
   console.log('member ui ', organizationId);
@@ -247,24 +250,50 @@ const MemberUI = ({ open, onClose, memberId, organizationId }: AddMemberProps) =
   )
 }
 
-const phoneNumberRegex = new RegExp('^[0-9]+$')
+const phoneRegex = new RegExp('^[0-9]+$')
 
 interface InviteMembersProps {
   open: boolean;
   onClose: () => void;
+  organizationId: number;
 }
-const InviteMembers = ({ open, onClose }: InviteMembersProps) => {
+interface InvitationResultItem {
+  phone: string;
+  invited: boolean;
+  error?: string;
+}
+const InviteMembers = ({ open, onClose, organizationId }: InviteMembersProps) => {
+  const { data: session } = useSession();
   const [currentPhoneNumber, setCurrentPhoneNumber] = useState<string>('');
-  const [phoneNumbers, setPhoneNumbers] = useState<string[]>([])
+  const [phones, setPhoneNumbers] = useState<string[]>([])
+  const [phonesInvited, setPhoneNumberInvited] = useState<InvitationResultItem[]>([]);
   const [error, setError] = useState<string>('');
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     console.log('handle invite submit');
+    const membersToInvite = phones.map((phone:string) => {
+      return {
+        id: 0,
+        firstName: "",
+        lastName: "",
+        sex: "male",
+        phone,
+        email: ""
+      } as Member
+    })
+    console.log(membersToInvite);
+    const result = await sendMultipleWhatsappInvitation(
+      organizationId,
+      membersToInvite,
+      session?.accessToken!,
+    );
+    console.log('result invitation', fromJson(result));
+    setPhoneNumberInvited(result);
   }
 
   const handlePhoneNumberChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (!phoneNumberRegex.test(event.target.value)) {
+    if (!phoneRegex.test(event.target.value)) {
       setError('phone number should have only space');
     } else {
       setCurrentPhoneNumber(event.target.value);
@@ -278,12 +307,35 @@ const InviteMembers = ({ open, onClose }: InviteMembersProps) => {
   const handleAddPhoneNumberClick = (event: React.FormEvent<HTMLButtonElement>) => {
     event.preventDefault();
     console.log('handle add phone number');
-    setPhoneNumbers([...phoneNumbers, currentPhoneNumber]);
+    setPhoneNumbers([...phones, currentPhoneNumber]);
     setCurrentPhoneNumber('');
   }
 
   const handleRemovePhoneNumberClick = (toDelete: string) => {
-    setPhoneNumbers(phoneNumbers.filter(p => p != toDelete))
+    setPhoneNumbers(phones.filter(p => p != toDelete))
+  }
+
+  const renderPrefixIcon = (phone: string) => {
+    const currentPhone = phonesInvited.find(i => i.phone === phone);
+    if (currentPhone) {
+      if (currentPhone.invited) {
+        return <CheckCircleIcon className="h-6 w-6 text-green-500" aria-hidden="true" />;
+      } else {
+        return <ExclamationCircleIcon className="h-5 w-5 text-red-500" aria-hidden="true" />;
+      }
+    }
+
+    return <XMarkIcon className="h-6 w-6" aria-hidden="true" />;
+  }
+
+  const renderErrorMessage = (phone: string) => {
+    const currentPhone = phonesInvited.find(i => i.phone === phone);
+    if (currentPhone) {
+      return !currentPhone.invited && currentPhone.error && (
+        <div className="ml-7 text-sm text-red-500">{ currentPhone.error }</div>
+      )
+    }
+    return <></>
   }
 
   return (
@@ -366,15 +418,16 @@ const InviteMembers = ({ open, onClose }: InviteMembersProps) => {
 
                       <div className="space-y-6 px-4 sm:px-6 sm:space-y-0 sm:divide-y sm:divide-gray-200">
                         <ul role="list" className="divide-y divide-gray-200">
-                          {phoneNumbers.map((phoneNumber) => (
-                            <li key={phoneNumber} className="px-4 py-2 sm:px-0">
+                          {phones.map((phone) => (
+                            <li key={phone} className="px-4 py-2 sm:px-0">
                               <div className="flex items-center gap-2">
-                                <button type="button" onClick={() => handleRemovePhoneNumberClick(phoneNumber)}>
+                                <button type="button" onClick={() => handleRemovePhoneNumberClick(phone)}>
                                   <span className="sr-only">Close panel</span>
-                                  <XMarkIcon className="h-6 w-6" aria-hidden="true" />
+                                  { renderPrefixIcon(phone) }
                                 </button>
-                                {phoneNumber}
+                                {phone}
                               </div>
+                              { renderErrorMessage(phone) }
                             </li>
                           ))}
                         </ul>
@@ -388,7 +441,7 @@ const InviteMembers = ({ open, onClose }: InviteMembersProps) => {
                           className="rounded-md border border-gray-300 bg-white py-2 px-4 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                           onClick={() => onClose()}
                         >
-                          Cancel
+                          { phonesInvited.length > 0 ? `Close` : `Cancel` }
                         </button>
                         <button
                           type="submit"
@@ -631,6 +684,7 @@ const MembersPage = ({ organizationId, members }: MembersPageProps) => {
       />
       <InviteMembers
         open={openInviteMembersUI}
+        organizationId={organizationId}
         onClose={() => setOpenInviteMembersUI(false)}
       />
     </div>
