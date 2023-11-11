@@ -1,15 +1,12 @@
 "use client"
 
-import { Dialog, Menu, Transition } from "@headlessui/react";
-import { EllipsisVerticalIcon, ExclamationCircleIcon, PaperAirplaneIcon, PencilSquareIcon, CheckCircleIcon, PhoneIcon, PlusIcon, TrashIcon, UserPlusIcon, XMarkIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
+import { Dialog, Transition } from "@headlessui/react";
+import { ExclamationCircleIcon, PaperAirplaneIcon, PencilSquareIcon, CheckCircleIcon, PhoneIcon, PlusIcon, TrashIcon, UserPlusIcon, XMarkIcon } from "@heroicons/react/20/solid";
 import { Fragment, useEffect, useState } from "react";
-import { Notification } from "../../notification";
-import { sendInviteOnWhatsapp, sendMultipleWhatsappInvitation } from "../../../services/organizations";
+import { sendMultipleWhatsappInvitation } from "../../../services/organizations";
 import { fromJson } from "../../../utils/utils";
 import { useSession } from "next-auth/react";
-import { JustInvitedMembers, Member, OrganizationMember } from "@/types/models";
-import InviteMembersFromTable from "./invite-members-from-table";
-import Countries from "@/utils/countries";
+import { Member, OrganizationMember } from "@/types/models";
 import { PhoneNumberInput } from "@/components/PhoneNumberInput";
 import { CommonNotification } from "@/components/common/CommonNotification";
 
@@ -475,6 +472,7 @@ const MembersPage = ({ organizationId, members }: MembersPageProps) => {
   const [openInviteMembersUI, setOpenInviteMembersUI] = useState<boolean>(false);
   const [selectedMemberId, setSelectedMemberId] = useState<number>(0);
   const [openReinvitationNotification, setOpenReinvitationNotification] = useState<boolean>(false);
+  const [notificationDescription, setNotificationDescription] = useState<string>("");
 
   const handleAddMemberClick = () => {
     console.log('handle add member click');
@@ -497,11 +495,23 @@ const MembersPage = ({ organizationId, members }: MembersPageProps) => {
       session?.accessToken!,
       true
     );
+    setNotificationDescription(`${membersToInvite.length} members have been successfully reinvited`)
+    setOpenReinvitationNotification(true);
+  }
+
+  const handleReInviteMember = async (member: Member) => {
+    const result = await sendMultipleWhatsappInvitation(
+      organizationId,
+      [member],
+      session?.accessToken!,
+      true
+    );
+    setNotificationDescription("Member successfully re-invited!")
     setOpenReinvitationNotification(true);
   }
 
   return (
-    <div className="px-4 sm:px-6 lg:px-8">
+    <div className="h-full px-4 sm:px-6 lg:px-8">
       <div className="sm:flex sm:items-center">
         <div className="sm:flex-auto">
           <h1 className="text-base font-semibold leading-6 text-gray-900">Members</h1>
@@ -569,7 +579,7 @@ const MembersPage = ({ organizationId, members }: MembersPageProps) => {
                 {members.map((member) => (
                   <tr key={member.id}
                     className="hover:cursor-pointer hover:bg-gray-50"
-                    onClick={() => handleMemberClick(member.id)}
+                    onContextMenu={() => console.log('right click')}
                   >
                     <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8">
                       {member.firstName}
@@ -589,76 +599,33 @@ const MembersPage = ({ organizationId, members }: MembersPageProps) => {
                       }
                     </td>
                     <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6 lg:pr-8">
-                      {/* <a href="#" className="text-indigo-600 hover:text-indigo-900">
-                        Edit (replaced by dropdown menu with actions)<span className="sr-only">{`${member.firstName} ${member.lastName}`}</span>
-                      </a> */}
-                      <Menu as="div" className="relative inline-block text-left">
-                        <div>
-                          <Menu.Button className="flex items-center rounded-full bg-gray-100 text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-100">
-                            <span className="sr-only">Open options</span>
-                            <EllipsisVerticalIcon className="h-5 w-5" aria-hidden="true" />
-                          </Menu.Button>
-                        </div>
-
-                        <Transition
-                          as={Fragment}
-                          enter="transition ease-out duration-100"
-                          enterFrom="transform opacity-0 scale-95"
-                          enterTo="transform opacity-100 scale-100"
-                          leave="transition ease-in duration-75"
-                          leaveFrom="transform opacity-100 scale-100"
-                          leaveTo="transform opacity-0 scale-95"
+                      <span className="isolate inline-flex rounded-md shadow-sm">
+                        <button
+                          type="button"
+                          className="relative text-xs inline-flex items-center rounded-l-md bg-white px-2 py-1 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-10"
                         >
-                          <Menu.Items className="absolute right-0 z-10 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                            <div className="py-1">
-                              <Menu.Item>
-                                {({ active }) => (
-                                  <a
-                                    href="#"
-                                    className="'text-gray-700 group flex items-center px-4 py-2 text-sm"
-                                  >
-                                    <PencilSquareIcon
-                                      className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500"
-                                      aria-hidden="true"
-                                    />
-                                    Edit
-                                  </a>
-                                )}
-                              </Menu.Item>
-                              {/* <Menu.Item>
-                                {({ active }) => (
-                                  <a
-                                    href="#"
-                                    className={classNames(
-                                      active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
-                                      'group flex items-center px-4 py-2 text-sm'
-                                    )}
-                                  >
-                                    <DocumentDuplicateIcon
-                                      className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500"
-                                      aria-hidden="true"
-                                    />
-                                    Duplicate
-                                  </a>
-                                )}
-                              </Menu.Item> */}
-                            </div>
-                            <div className="py-1">
-                              <Menu.Item>
-                                {({ active }) => (
-                                  <a
-                                    href="#"
-                                    className="text-gray-700 group flex items-center px-4 py-2 text-sm"
-                                  >
-                                    <TrashIcon className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500" aria-hidden="true" />
-                                    Delete
-                                  </a>
-                                )}
-                              </Menu.Item>
-                            </div>
-                          </Menu.Items>
-                        </Transition>
-                      </Menu>
+                          <PencilSquareIcon
+                            className="mr-1 h-3 w-3 text-gray-400 group-hover:text-gray-500"
+                            aria-hidden="true"
+                          />
+                          Edit
+                        </button>
+                        <button
+                          type="button"
+                          className="relative text-xs -ml-px inline-flex items-center bg-white px-2 py-1 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-10"
+                        >
+                          <TrashIcon className="mr-1 h-3 w-3 text-gray-400 group-hover:text-gray-500" aria-hidden="true" />
+                          Delete
+                        </button>
+                        {!member.joined && <button
+                          type="button"
+                          className="relative text-xs -ml-px inline-flex items-center rounded-r-md bg-white px-2 py-1 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-10"
+                          onClick={() => handleReInviteMember(member)}
+                        >
+                          <PaperAirplaneIcon className="mr-1 h-3 w-3" aria-hidden="true"/>
+                          ReInvite
+                        </button>}
+                      </span>
                     </td>
                   </tr>
                 ))}
@@ -682,7 +649,7 @@ const MembersPage = ({ organizationId, members }: MembersPageProps) => {
 
       <CommonNotification
         title="Invitation resend successfully"
-        description={`${members.filter(m => !m.joined).length} members have been successfully reinvited`}
+        description={notificationDescription}
         show={openReinvitationNotification}
         onClose={() => setOpenReinvitationNotification(false)}
       />
