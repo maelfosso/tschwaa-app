@@ -11,8 +11,8 @@ export const sendInviteOnWhatsapp = async (orgId: number, phone: string, token: 
   return await customAxiosInstance.post(API_ORG_MEMBERS_INVITE(orgId), jsonInputs, { token });
 }
 
-export const sendMultipleWhatsappInvitation = async (orgId: number, members: Member[], token: string) => {
+export const sendMultipleWhatsappInvitation = async (orgId: number, members: Member[], token: string, reInvitation: boolean = false) => {
   const jsonInputs = toJson(members);
 
-  return await customAxiosInstance.post(API_ORG_MEMBERS_INVITE(orgId), jsonInputs, { token })
+  return await customAxiosInstance.post(API_ORG_MEMBERS_INVITE(orgId, reInvitation), jsonInputs, { token })
 }

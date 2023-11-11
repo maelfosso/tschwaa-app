@@ -1,7 +1,7 @@
 "use client"
 
 import { Dialog, Menu, Transition } from "@headlessui/react";
-import { EllipsisVerticalIcon, ExclamationCircleIcon, PaperAirplaneIcon, PencilSquareIcon, CheckCircleIcon, PhoneIcon, PlusIcon, TrashIcon, UserPlusIcon, XMarkIcon } from "@heroicons/react/20/solid";
+import { EllipsisVerticalIcon, ExclamationCircleIcon, PaperAirplaneIcon, PencilSquareIcon, CheckCircleIcon, PhoneIcon, PlusIcon, TrashIcon, UserPlusIcon, XMarkIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
 import { Fragment, useEffect, useState } from "react";
 import { Notification } from "../../notification";
 import { sendInviteOnWhatsapp, sendMultipleWhatsappInvitation } from "../../../services/organizations";
@@ -470,32 +470,9 @@ interface MembersPageProps {
 const MembersPage = ({ organizationId, members }: MembersPageProps) => {
   const { data: session } = useSession();
   const [phone, setPhoneNumber] = useState<string>();
-  const [showInvitationNotification, setShowInvitationNotification] = useState<boolean>(false);
-  const [justInvitedMembers, setJustInvitedMembers] = useState<JustInvitedMembers[]>([]);
-  const [openMembersTableDialog, setOpenMembersTableDialog] = useState<boolean>(false);
-  const [openMembersFileDialog, setOpenMembersFileDialog] = useState<boolean>(false);
   const [openMemberUI, setOpenMemberUI] = useState<boolean>(false);
   const [openInviteMembersUI, setOpenInviteMembersUI] = useState<boolean>(false);
   const [selectedMemberId, setSelectedMemberId] = useState<number>(0);
-
-  const handleSendInviteWhatsappClick = async () => {
-    const data = await sendInviteOnWhatsapp(orgId, phone!, session?.accessToken as string);
-    setShowInvitationNotification(true);
-    setJustInvitedMembers(fromJson(data) as JustInvitedMembers[])
-  }
-
-  const handleResendWhatsappInvitationClick = async (to: string) => {
-    const data = await sendInviteOnWhatsapp(orgId, to, session?.accessToken as string);
-    setShowInvitationNotification(true);
-  }
-
-  const handleInviteMultipleMembersClick = async () => {
-    setOpenMembersTableDialog(true);
-  }
-
-  const handleInviteMembersFileClick = async () => {
-    setOpenMembersFileDialog(true);
-  }
 
   const handleAddMemberClick = () => {
     console.log('handle add member click');
@@ -509,6 +486,18 @@ const MembersPage = ({ organizationId, members }: MembersPageProps) => {
     setOpenMemberUI(true);
   }
 
+  const handleResendInvitation = async () => {
+    const membersToReinvite = members.filter(m => !m.joined);
+    console.log("Reinvite ", membersToReinvite);
+    const result = await sendMultipleWhatsappInvitation(
+      organizationId,
+      membersToReinvite,
+      session?.accessToken!,
+      true
+    );
+    console.log("result reinvitation send", result);
+  }
+
   return (
     <div className="px-4 sm:px-6 lg:px-8">
       <div className="sm:flex sm:items-center">
@@ -518,17 +507,18 @@ const MembersPage = ({ organizationId, members }: MembersPageProps) => {
             A list of all the members of your organization including their name, phone number, email and role.
           </p>
         </div>
-        <div className="mt-4 flex gap-y-1 sm:ml-16 sm:mt-0 sm:flex-none">
+        <div className="mt-4 flex gap-1 sm:ml-16 sm:mt-0 sm:flex-none">
           <button
             type="button"
-            className=""
+            className="pointer"
+            onClick={() => handleResendInvitation()}
           >
             <PaperAirplaneIcon className="h-6 w-6 shrink-0" />
           </button>
 
           <button
             type="button"
-            className=""
+            className="pointer"
             onClick={() => handleAddMemberClick()}
           >
             <UserPlusIcon className="h-6 w-6 shrink-0"/>
