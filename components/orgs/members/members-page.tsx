@@ -11,6 +11,7 @@ import { JustInvitedMembers, Member, OrganizationMember } from "@/types/models";
 import InviteMembersFromTable from "./invite-members-from-table";
 import Countries from "@/utils/countries";
 import { PhoneNumberInput } from "@/components/PhoneNumberInput";
+import { CommonNotification } from "@/components/common/CommonNotification";
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ')
@@ -473,6 +474,7 @@ const MembersPage = ({ organizationId, members }: MembersPageProps) => {
   const [openMemberUI, setOpenMemberUI] = useState<boolean>(false);
   const [openInviteMembersUI, setOpenInviteMembersUI] = useState<boolean>(false);
   const [selectedMemberId, setSelectedMemberId] = useState<number>(0);
+  const [openReinvitationNotification, setOpenReinvitationNotification] = useState<boolean>(false);
 
   const handleAddMemberClick = () => {
     console.log('handle add member click');
@@ -495,7 +497,7 @@ const MembersPage = ({ organizationId, members }: MembersPageProps) => {
       session?.accessToken!,
       true
     );
-    console.log("result reinvitation send", result);
+    setOpenReinvitationNotification(true);
   }
 
   return (
@@ -676,6 +678,13 @@ const MembersPage = ({ organizationId, members }: MembersPageProps) => {
         open={openInviteMembersUI}
         organizationId={organizationId}
         onClose={() => setOpenInviteMembersUI(false)}
+      />
+
+      <CommonNotification
+        title="Invitation resend successfully"
+        description={`${members.filter(m => !m.joined).length} members have been successfully reinvited`}
+        show={openReinvitationNotification}
+        onClose={() => setOpenReinvitationNotification(false)}
       />
     </div>
   )
