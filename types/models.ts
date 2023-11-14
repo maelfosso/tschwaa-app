@@ -40,3 +40,9 @@ export interface Invitation {
   member: Member;
   organization: Organization
 }
+
+export interface Session {
+  startDate: Date;
+  endDate: Date;
+  inProgress: true;
+}

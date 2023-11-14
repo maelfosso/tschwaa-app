@@ -600,7 +600,7 @@ const MembersPage = ({ organizationId, members }: MembersPageProps) => {
                     </td>
                     <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6 lg:pr-8">
                       <span className="isolate inline-flex rounded-md shadow-sm">
-                        <button
+                        {/* <button
                           type="button"
                           className="relative text-xs inline-flex items-center rounded-l-md bg-white px-2 py-1 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-10"
                         >
@@ -616,7 +616,7 @@ const MembersPage = ({ organizationId, members }: MembersPageProps) => {
                         >
                           <TrashIcon className="mr-1 h-3 w-3 text-gray-400 group-hover:text-gray-500" aria-hidden="true" />
                           Delete
-                        </button>
+                        </button> */}
                         {!member.joined && <button
                           type="button"
                           className="relative text-xs -ml-px inline-flex items-center rounded-r-md bg-white px-2 py-1 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-10"

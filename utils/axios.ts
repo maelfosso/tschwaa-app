@@ -60,6 +60,7 @@ class CustomAxiosInstance {
     const config = {
       headers: { Authorization: `Bearer ${token}` }
     };
+    console.log('get ', config);
     try {
       let { data } = await this.instance.get<T>(url, config);
       data = fromJson(data) as T;

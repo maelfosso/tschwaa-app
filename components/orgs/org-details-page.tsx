@@ -1,14 +1,10 @@
 "use client";
 
-import { Menu, Transition } from "@headlessui/react";
-import { AcademicCapIcon, BanknotesIcon, Bars4Icon, BriefcaseIcon, CalendarIcon, CheckBadgeIcon, CheckIcon, ChevronDownIcon, ClockIcon, CurrencyDollarIcon, LinkIcon, MapPinIcon, PencilIcon, PhotoIcon, ReceiptRefundIcon, ScaleIcon, TableCellsIcon, UsersIcon, ViewColumnsIcon } from "@heroicons/react/20/solid";
-import { Fragment } from "react";
-import { GetServerSideProps } from 'next'
-import customAxiosInstance from "../../utils/axios";
-import { classNames } from "../../utils/utils";
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { Organization } from "@/types/models";
+import { ScaleIcon } from "@heroicons/react/20/solid";
+import { Organization, Session } from "@/types/models";
+import { useCallback, useEffect, useState } from "react";
+import { getCurrentSession } from "@/services/organizations";
+import { useSession } from "next-auth/react";
 
 interface OrgDetailsProps {
   org?: Organization
@@ -71,8 +67,15 @@ const announcements = [
   },
 ]
 
-const OrgDetailsPage = ({ org }: OrgDetailsProps) => {
 
+const OrgDetailsPage = ({ org }: OrgDetailsProps) => {
+  console.log("organization ", org);
+  // Request current session
+  // 1- if there is no current session, display a dialog asking to the user to create a new session
+  // 2- if there is a current session, display all the information related to that current session
+  //  
+  
+  
   return (
     <section className="sm:px-6 lg:px-8">
       <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-3 lg:gap-8">

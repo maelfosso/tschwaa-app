@@ -1,14 +1,17 @@
 "use client";
 
-import Organization from "@/models/organization";
-import { ArrowLeftIcon, Bars3Icon, BellIcon, BuildingOfficeIcon, CalendarIcon, CheckCircleIcon, ChevronDownIcon, ChevronLeftIcon, ChevronUpDownIcon, Cog6ToothIcon, ExclamationCircleIcon, FolderIcon, HomeIcon, MagnifyingGlassIcon, PencilSquareIcon, UsersIcon, XMarkIcon } from "@heroicons/react/20/solid";
+import { CheckIcon, Bars3Icon, BellIcon, BuildingOfficeIcon, CalendarIcon, CheckCircleIcon, ChevronDownIcon, ChevronLeftIcon, ChevronUpDownIcon, Cog6ToothIcon, ExclamationCircleIcon, FolderIcon, HomeIcon, MagnifyingGlassIcon, PencilSquareIcon, UsersIcon, XMarkIcon } from "@heroicons/react/20/solid";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { Fragment, ReactNode, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { Fragment, ReactNode, useCallback, useEffect, useState } from "react";
 import Navbar from "../navbar";
 import { Combobox, Dialog, Menu, Transition } from "@headlessui/react";
 import { useSession } from "next-auth/react";
+import { Organization, Session } from "@/types/models";
+import { getCurrentSession } from "@/services/organizations";
+import NoCurrentSession from "./NoCurrentSession";
+import CreateNewSession from "./CreateNewSession";
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ')
@@ -139,19 +142,76 @@ const SwitchingOrganization = ({ open, onClose }: { open: boolean, onClose: () =
   );
 }
 
-
 interface OrganizationLayoutProps {
   children: ReactNode,
   org: Organization
 }
 
 const OrganizationLayout = ({ children, org }: OrganizationLayoutProps) => {
+  const router = useRouter();
   const pathname = usePathname();
-  const session = useSession();
+  const searchParams = useSearchParams()!;
+
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [openSwitchOrg, setOpenSwitchOrg] = useState(false);
-  console.log(pathname);
+  const [navigationState, setNavigationState] = useState<string>("");
 
+  const { data: authSession } = useSession();
+  const [currentSession, setCurrentSession] = useState<Session | null>(null);
+  const createQueryString = useCallback(
+    (name: string, value: string) => {
+      const params = new URLSearchParams(searchParams)
+      params.set(name, value)
+ 
+      return params.toString()
+    },
+    [searchParams]
+  )
+
+  useEffect(() => {
+    if (searchParams.has("ns")) {
+      const value = searchParams.get("ns");
+      console.log("sp", value);
+      setNavigationState(value!);
+    }
+  }, [searchParams]);
+
+  const fetchCurrentSession = useCallback(async () => {
+    if (org.id) {
+      const session = await getCurrentSession(org.id, authSession?.accessToken!);
+      setCurrentSession(session as Session)
+
+      if (session === null) {
+        router.push(pathname + '?' + createQueryString('ns', 'no-session'))
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [org])
+
+  useEffect(() => {
+    fetchCurrentSession()
+      .catch(console.error);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fetchCurrentSession]);
+
+  const handleCreateNewSession = () => {
+    console.log('handle create new session');
+    router.push(pathname + '?' + createQueryString('ns', 'new-session'))
+  }
+
+  const renderNavigationState = (ns: string) => {
+    switch (ns) {
+      case "no-session":
+        return <NoCurrentSession
+          open={true}
+          onCreateNewSession={() => handleCreateNewSession()}
+        />
+      case "new-session":
+        return <CreateNewSession />
+      default:
+        return <></>
+    }
+  }
   return (
     <div>
       <Transition.Root show={sidebarOpen} as={Fragment}>
@@ -285,7 +345,6 @@ const OrganizationLayout = ({ children, org }: OrganizationLayoutProps) => {
 
       {/* Static sidebar for desktop */}
       <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
-        {/* Sidebar component, swap this element with another sidebar if you like */}
         <div className="flex grow flex-col gap-y-5 overflow-y-auto border-r border-gray-200 bg-white px-6 pb-4">
           <div className="flex h-16 shrink-0 items-center">
             <img
@@ -505,7 +564,12 @@ const OrganizationLayout = ({ children, org }: OrganizationLayoutProps) => {
         </div>
 
         <main className="py-4">
-          <div className="">{ children }</div>
+          { currentSession && <div className="">{ children }</div>}
+          {/* { !currentSession && <NoCurrentSession
+              onClose={() => console.log('on close')}
+              onCreateSessionClick={() => handleCreateNewSession()}
+            />} */}
+          { renderNavigationState(navigationState) }
         </main>
       </div>
 
