@@ -1,4 +1,4 @@
-import { Fragment, useState } from "react"
+import { Fragment, useEffect, useState } from "react"
 import { Dialog, Menu, Transition } from "@headlessui/react"
 import { ExclamationTriangleIcon } from "@heroicons/react/24/outline"
 import { ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, EllipsisHorizontalIcon } from "@heroicons/react/20/solid"
@@ -49,6 +49,10 @@ const CreateNewSession = () => {
 }
 
 export default CreateNewSession;
+
+Number.prototype.mod = function(n) {
+  return ((this%n)+n)%n;
+}
 
 const months = [
   {
@@ -101,15 +105,112 @@ const months = [
   // More months...
 ]
 
+interface CalendarDay {
+  date: string;
+  isCurrentMonth: boolean;
+  isToday: boolean;
+}
+
+interface CalendarMonth {
+  name: string;
+  days: CalendarDay[]
+}
+
+const getAllDatesInMonthUTC = (year: number, month: number) => {
+  const daysInMonth = new Date(Date.UTC(year, month + 1, 1))
+    - new Date(Date.UTC(year, month, 1));
+  const dates = Array.from({
+      length: daysInMonth / (24 * 60 * 60 * 1000) 
+    }, 
+    (_, index) => new Date(Date.UTC(year, month, index + 1))
+  );
+  let calendarDates = dates.map(d => ({
+    date: d.toISOString().split('T')[0],
+    isCurrentMonth: true,
+    isToday: d.setHours(0, 0, 0, 0) == new Date().setHours(0, 0, 0, 0)
+  }))
+
+  console.log(year, month)
+  let day = (dates[0].getDay() - 1).mod(7)
+  console.log("start ", dates[0].getDay(), day)
+  if (day > 0 ) {
+    for (let i=1; i <= day; i++) {
+      calendarDates.unshift({
+        date: new Date(Date.UTC(year, month - 1, new Date(year, month, 0).getDate() - i + 1)).toISOString().split('T')[0],
+        isCurrentMonth: false,
+        isToday: false
+      })
+    }
+  }
+
+  day = (dates[dates.length - 1].getDay() - 1).mod(7)
+  console.log("start ", dates[dates.length - 1].getDay(), day)
+  if (day < 6) {
+    for (let i=1; i < 7- day ; i++) {
+      calendarDates.push({
+        date: new Date(Date.UTC(year, month + 1, i)).toISOString().split('T')[0],
+        isCurrentMonth: false,
+        isToday: false
+      })
+    }
+  }
+
+  if (calendarDates.length < 42) {
+    for (let i=0; i < 7 ; i++) {
+      calendarDates.push({
+        date: new Date(Date.UTC(year, month + 1, 7 - day + i)).toISOString().split('T')[0],
+        isCurrentMonth: false,
+        isToday: false
+      })
+    }
+  }
+
+  return calendarDates;
+}
+
+const MONTHS = [
+  'January', 'Frebruary', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December'
+]
 const CreateNewSessionContent = () => {
+  const [months, setMonths] = useState<CalendarMonth[]>([])
+  useEffect(() => {
+    const today = new Date();
+    const currentYear  = today.getFullYear();
+    const currentMonth = today.getMonth();
+    let allMonths: CalendarMonth[] = [];
+
+    // let datesInFebruary2023 = getAllDatesInMonthUTC(2023, 1);
+    for (let i=0; i<12; i++) {
+      let datesOfMonth = getAllDatesInMonthUTC(currentYear, i);
+      console.log(currentYear, i);
+      console.log(datesOfMonth);
+      allMonths = [
+        ...allMonths,
+        {
+          name: MONTHS[i],
+          days: datesOfMonth
+        }
+      ]
+    }
+
+    setMonths(allMonths);
+  }, []);
+
   return (
     <div>
       <header className="border-b border-gray-900/10 pb-3">
         <h2 className="text-xl font-semibold leading-7 text-gray-900">Create a new session</h2>
+        {/* <p className="mt-1 max-w-2xl text-sm leading-6 text-gray-600">
+          Kindly select, using the calendar, the start and end date of the session
+        </p> */}
+      </header>
+      <div className="pt-3">
+        <h2 className="text-lg font-semibold leading-7 text-gray-900">Start and End of the session</h2>
         <p className="mt-1 max-w-2xl text-sm leading-6 text-gray-600">
           Kindly select, using the calendar, the start and end date of the session
         </p>
-      </header>
+      </div>
       <header className="flex flex-none items-center justify-between py-4">
         <div>
           <h3 className="text-base font-semibold leading-6 text-gray-900">
@@ -353,7 +454,7 @@ const CreateNewSessionContent = () => {
             </Menu> */}
           </div>
         </header>
-        <div className="bg-white">
+        <div className="bg-white h-[50vh] overflow-y-auto">
           <div className="mx-auto grid max-w-3xl grid-cols-1 gap-x-8 gap-y-16 px-4 py-16 sm:grid-cols-2 sm:px-6 xl:max-w-none xl:grid-cols-3 xl:px-8 2xl:grid-cols-4">
             {months.map((month) => (
               <section key={month.name} className="text-center">
@@ -397,6 +498,9 @@ const CreateNewSessionContent = () => {
             ))}
           </div>
         </div>
+      </div>
+      <div className="flex pt-3">
+        <button className="ml-auto">Next</button>
       </div>
     </div>
   )
