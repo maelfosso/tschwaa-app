@@ -226,7 +226,6 @@ const DateRangeSelection = () => {
   const handlePreviousYearClick = () => setYear(year - 1);
 
   const handleDayClick = (monthIdx:number, dayIdx: number) => {
-    console.log("handle day click", monthIdx, dayIdx);
     let newMonths: CalendarMonth[] = [];
     if (startDate) {
       newMonths = deselectDay(startDate, newMonths);
@@ -236,19 +235,48 @@ const DateRangeSelection = () => {
     }
 
     const day = months[monthIdx].days[dayIdx];
-    console.log("handle day click", day);
 
-    if (!startDate) {
-      setStartDate(day.date)
-    } else {
-      if (endDate) {
-        if (new Date(day.date) < new Date(endDate)) {
-          setStartDate(day.date)
-        } else {
-          setEndDate(day.date)
+    if (!startDate && !endDate) { // [,]
+      setStartDate(day.date);
+    } else {                      // [s, ] or [, e]
+      if (startDate) {            // [s, ]
+        if (endDate) {            // [s, e]
+          if (new Date(day.date) <= new Date(startDate)) {
+            setStartDate(day.date)
+          } else {
+            if (new Date(day.date) < new Date(endDate)) {
+              setStartDate(day.date);
+            } else {
+              setEndDate(day.date);
+            }
+          }
+        } else {                  // [s, ]
+          if (new Date(day.date) <= new Date(startDate)) {
+            setEndDate(startDate);
+            setStartDate(day.date);
+          } else {
+            setEndDate(day.date);
+          }
         }
-      } else {
-        setEndDate(day.date);
+      } else {                    // [, e]
+        if (startDate) {          // [s, e]
+          if (new Date(day.date) <= new Date(startDate)) {
+            setStartDate(day.date)
+          } else {
+            if (new Date(day.date) < new Date(endDate)) {
+              setStartDate(day.date);
+            } else {
+              setEndDate(day.date);
+            }
+          }
+        } else {
+          if (new Date(day.date) < new Date(endDate)) {
+            setStartDate(day.date);
+          } else {
+            setStartDate(endDate);
+            setEndDate(day.date);
+          }
+        }
       }
     }
 
