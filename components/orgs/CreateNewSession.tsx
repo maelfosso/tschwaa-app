@@ -1,12 +1,50 @@
 import { Fragment, useEffect, useState } from "react"
 import { Dialog, Menu, Transition } from "@headlessui/react"
-import { ExclamationTriangleIcon } from "@heroicons/react/24/outline"
-import { ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, EllipsisHorizontalIcon } from "@heroicons/react/20/solid"
-import { useSelectedLayoutSegment } from "next/navigation"
 import DateRangeSelection from "./create-new-session/DateRangeSelection"
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useQueryString } from "@/lib/hooks";
+import { MembersSelection } from "./create-new-session/MembersSelection";
 
 const CreateNewSession = () => {
-  const [open, setOpen] = useState(true)
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams()!;
+
+  const { createQueryString } = useQueryString(searchParams);
+
+  const [open, setOpen] = useState(true);
+  const [step, setStep] = useState<number>(0)
+
+  useEffect(() => {
+    if (searchParams.has('step')) {
+      setStep(+searchParams.get('step')!)
+    } else {
+      router.push(pathname + '?' + createQueryString('step', '1'))
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams])
+
+  const handleNextClick = () => {
+    if (step < 2)
+    router.push(pathname + '?' + createQueryString('step', (step + 1).toString()))
+  }
+
+  const handlePreviousClick = () => {
+    if (step > 1) {
+      router.push(pathname + '?' + createQueryString('step', (step - 1).toString()))
+    }
+  }
+
+  const renderStep = () => {
+    switch (step) {
+      case 1:
+        return <DateRangeSelection />
+      case 2:
+        return <MembersSelection />
+      default:
+        <></>
+    }
+  }
 
   return (
     <Transition.Root show={open} as={Fragment}>
@@ -35,7 +73,29 @@ const CreateNewSession = () => {
               leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
             >
               <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-screen-xl sm:p-6">
-                <DateRangeSelection />
+                <div className="flex flex-col">
+                  <header className="border-b border-gray-900/10 pb-3">
+                    <h2 className="text-xl font-semibold leading-7 text-gray-900">Create a new session</h2>
+                  </header>
+                  <div className="flex flex-col h-[60vh]">
+                    {renderStep()}
+                  </div>
+                  <div className="flex pt-3">
+                    <button
+                      className=""
+                      onClick={() => handlePreviousClick()}
+                      disabled={step <= 1}
+                    >
+                      Previous
+                    </button>
+                    <button
+                      className="ml-auto"
+                      onClick={() => handleNextClick()}
+                    >
+                      Next
+                    </button>
+                  </div>
+                </div>
               </Dialog.Panel>
             </Transition.Child>
           </div>

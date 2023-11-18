@@ -111,6 +111,7 @@ const DateRangeSelection = () => {
     }
 
     setMonths(allMonths);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [year]);
 
   useEffect(() => {
@@ -255,13 +256,7 @@ const DateRangeSelection = () => {
   }
 
   return (
-    <div>
-      <header className="border-b border-gray-900/10 pb-3">
-        <h2 className="text-xl font-semibold leading-7 text-gray-900">Create a new session</h2>
-        {/* <p className="mt-1 max-w-2xl text-sm leading-6 text-gray-600">
-          Kindly select, using the calendar, the start and end date of the session
-        </p> */}
-      </header>
+    <>
       <div className="pt-3">
         <h2 className="text-lg font-semibold leading-7 text-gray-900">Start and End of the session</h2>
         <p className="mt-1 max-w-2xl text-sm leading-6 text-gray-600">
@@ -322,7 +317,7 @@ const DateRangeSelection = () => {
           <p className="mt-1 text-sm text-right text-gray-500">To</p>
         </div>
       </div>
-      <div className="rounded-lg border border-gray-200 overflow-y-auto bg-gray-50">
+      <div className="flex-1 rounded-lg border border-gray-200 overflow-y-auto bg-gray-50">
         <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
           <h3 className="text-base font-semibold leading-6 text-gray-900">
             <time dateTime={year.toString()}>{year}</time>
@@ -543,7 +538,7 @@ const DateRangeSelection = () => {
             </Menu> */}
           </div>
         </div>
-        <div className="bg-white h-[50vh] overflow-y-auto">
+        <div className="bg-white h-full overflow-y-auto">
           <div className="mx-auto grid max-w-3xl grid-cols-1 gap-x-8 gap-y-16 px-4 py-16 sm:grid-cols-2 sm:px-6 xl:max-w-none xl:grid-cols-3 xl:px-8 2xl:grid-cols-4">
             {months.map((month, monthIdx) => (
               <section key={month.name} className="text-center">
@@ -598,10 +593,7 @@ const DateRangeSelection = () => {
           </div>
         </div>
       </div>
-      <div className="flex pt-3">
-        <button className="ml-auto">Next</button>
-      </div>
-    </div>
+    </>
   )
 }
 

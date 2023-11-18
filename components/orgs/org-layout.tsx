@@ -12,6 +12,7 @@ import { Organization, Session } from "@/types/models";
 import { getCurrentSession } from "@/services/organizations";
 import NoCurrentSession from "./NoCurrentSession";
 import CreateNewSession from "./CreateNewSession";
+import { useQueryString } from "@/lib/hooks";
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ')
@@ -152,21 +153,14 @@ const OrganizationLayout = ({ children, org }: OrganizationLayoutProps) => {
   const pathname = usePathname();
   const searchParams = useSearchParams()!;
 
+  const { createQueryString } = useQueryString(searchParams);
+
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [openSwitchOrg, setOpenSwitchOrg] = useState(false);
   const [navigationState, setNavigationState] = useState<string>("");
 
   const { data: authSession } = useSession();
   const [currentSession, setCurrentSession] = useState<Session | null>(null);
-  const createQueryString = useCallback(
-    (name: string, value: string) => {
-      const params = new URLSearchParams(searchParams)
-      params.set(name, value)
- 
-      return params.toString()
-    },
-    [searchParams]
-  )
 
   useEffect(() => {
     if (searchParams.has("ns")) {
@@ -344,7 +338,7 @@ const OrganizationLayout = ({ children, org }: OrganizationLayoutProps) => {
       </Transition.Root>
 
       {/* Static sidebar for desktop */}
-      <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
+      { currentSession && <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
         <div className="flex grow flex-col gap-y-5 overflow-y-auto border-r border-gray-200 bg-white px-6 pb-4">
           <div className="flex h-16 shrink-0 items-center">
             <img
@@ -457,7 +451,7 @@ const OrganizationLayout = ({ children, org }: OrganizationLayoutProps) => {
             </ul>
           </nav>
         </div>
-      </div>
+      </div>}
 
       <div className="lg:pl-72">
         <div className="sticky top-0 z-40">
@@ -565,10 +559,6 @@ const OrganizationLayout = ({ children, org }: OrganizationLayoutProps) => {
 
         <main className="py-4">
           { currentSession && <div className="">{ children }</div>}
-          {/* { !currentSession && <NoCurrentSession
-              onClose={() => console.log('on close')}
-              onCreateSessionClick={() => handleCreateNewSession()}
-            />} */}
           { renderNavigationState(navigationState) }
         </main>
       </div>
