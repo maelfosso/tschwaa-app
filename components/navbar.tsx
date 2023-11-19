@@ -7,6 +7,7 @@ import { signIn, signOut, useSession } from "next-auth/react";
 import { Fragment, useState } from "react";
 import Image from "next/image";
 import { Session, User } from "next-auth";
+import { classNames } from "@/lib/utils";
 
 interface NavbarProps {
   user: User | null,
@@ -25,10 +26,6 @@ const userNavigation: { name: string, href: string }[] = [
   { name: 'Settings', href: '#' },
   { name: 'Sign out', href: '#' },
 ]
-
-function classNames(...classes: String[]) {
-  return classes.filter(Boolean).join(' ')
-}
 
 const navigation = [
   { name: 'Product', href: '#' },

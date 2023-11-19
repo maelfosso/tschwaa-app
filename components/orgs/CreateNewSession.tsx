@@ -5,12 +5,16 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useQueryString } from "@/lib/hooks";
 import { MembersSelection } from "./create-new-session/MembersSelection";
 
-const CreateNewSession = () => {
+interface CreateNewSessionProps {
+  organizationId: number
+}
+
+const CreateNewSession = ({ organizationId }: CreateNewSessionProps) => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams()!;
 
-  const { createQueryString } = useQueryString(searchParams);
+  const { createQueryString } = useQueryString();
 
   const [open, setOpen] = useState(true);
   const [step, setStep] = useState<number>(0)
@@ -40,7 +44,7 @@ const CreateNewSession = () => {
       case 1:
         return <DateRangeSelection />
       case 2:
-        return <MembersSelection />
+        return <MembersSelection organizationId={organizationId} />
       default:
         <></>
     }

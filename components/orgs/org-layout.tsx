@@ -13,10 +13,7 @@ import { getCurrentSession } from "@/services/organizations";
 import NoCurrentSession from "./NoCurrentSession";
 import CreateNewSession from "./CreateNewSession";
 import { useQueryString } from "@/lib/hooks";
-
-function classNames(...classes: string[]) {
-  return classes.filter(Boolean).join(' ')
-}
+import { classNames } from "@/lib/utils";
 
 const navigation = [
   { name: 'Home', href: '', icon: HomeIcon, current: true },
@@ -153,7 +150,7 @@ const OrganizationLayout = ({ children, org }: OrganizationLayoutProps) => {
   const pathname = usePathname();
   const searchParams = useSearchParams()!;
 
-  const { createQueryString } = useQueryString(searchParams);
+  const { createQueryString, emptyQueryString } = useQueryString();
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [openSwitchOrg, setOpenSwitchOrg] = useState(false);
@@ -176,7 +173,8 @@ const OrganizationLayout = ({ children, org }: OrganizationLayoutProps) => {
       setCurrentSession(session as Session)
 
       if (session === null) {
-        router.push(pathname + '?' + createQueryString('ns', 'no-session'))
+        emptyQueryString();
+        router.push(pathname + '?' + createQueryString('ns', 'no-session'));
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -201,7 +199,7 @@ const OrganizationLayout = ({ children, org }: OrganizationLayoutProps) => {
           onCreateNewSession={() => handleCreateNewSession()}
         />
       case "new-session":
-        return <CreateNewSession />
+        return <CreateNewSession organizationId={org.id} />
       default:
         return <></>
     }

@@ -7,6 +7,7 @@ import { Bars3Icon, BellIcon, CalendarIcon, ChartPieIcon, DocumentDuplicateIcon,
 import { Dialog, Disclosure, Menu, Transition } from "@headlessui/react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { classNames } from "@/lib/utils";
 
 interface LayoutProps {
   children: ReactNode,
@@ -18,10 +19,6 @@ const userNavigation: { name: string, href: string }[] = [
   { name: 'Settings', href: '#' },
   { name: 'Sign out', href: '#' },
 ]
-
-function classNames(...classes: String[]) {
-  return classes.filter(Boolean).join(' ')
-}
 
 const DefaultLayout = ({ children }: { children: ReactNode }) => {
 

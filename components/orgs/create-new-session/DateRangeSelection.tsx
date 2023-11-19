@@ -2,11 +2,9 @@ import { Fragment, useEffect, useState } from "react"
 import { Dialog, Menu, Transition } from "@headlessui/react"
 import { ExclamationTriangleIcon } from "@heroicons/react/24/outline"
 import { ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, EllipsisHorizontalIcon } from "@heroicons/react/20/solid"
-import { useSelectedLayoutSegment } from "next/navigation"
+import { useSelectedLayoutSegment } from "next/navigation";
+import { classNames } from "@/lib/utils";
 
-function classNames(...classes) {
-  return classes.filter(Boolean).join(' ')
-}
 
 Number.prototype.mod = function(n) {
   return ((this%n)+n)%n;
