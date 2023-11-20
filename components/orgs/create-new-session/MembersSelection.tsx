@@ -21,7 +21,7 @@ const getOrganizationMembers = async (orgId: number, token: string) => {
   return data;
 }
 
-export const MembersSelection = ({ organizationId }: MembersSelectionProps) => {
+const MembersSelection = ({ organizationId }: MembersSelectionProps) => {
   const { data: authSession } = useSession();
   const pathname = usePathname();
   const router = useRouter();
@@ -172,3 +172,5 @@ export const MembersSelection = ({ organizationId }: MembersSelectionProps) => {
     </div>
   )
 }
+
+export default MembersSelection;

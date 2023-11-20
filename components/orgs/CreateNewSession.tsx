@@ -1,9 +1,10 @@
 import { Fragment, useEffect, useState } from "react"
 import { Dialog, Menu, Transition } from "@headlessui/react"
-import DateRangeSelection from "./create-new-session/DateRangeSelection"
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useQueryString } from "@/lib/hooks";
-import { MembersSelection } from "./create-new-session/MembersSelection";
+import DateRangeSelection from "./create-new-session/DateRangeSelection"
+import MeetingConfiguration from "./create-new-session/MeetingConfiguration";
+import MembersSelection from "./create-new-session/MembersSelection";
 
 interface CreateNewSessionProps {
   organizationId: number
@@ -29,8 +30,9 @@ const CreateNewSession = ({ organizationId }: CreateNewSessionProps) => {
   }, [searchParams])
 
   const handleNextClick = () => {
-    if (step < 2)
-    router.push(pathname + '?' + createQueryString('step', (step + 1).toString()))
+    if (step < 3) {
+      router.push(pathname + '?' + createQueryString('step', (step + 1).toString()))
+    }
   }
 
   const handlePreviousClick = () => {
@@ -45,6 +47,8 @@ const CreateNewSession = ({ organizationId }: CreateNewSessionProps) => {
         return <DateRangeSelection />
       case 2:
         return <MembersSelection organizationId={organizationId} />
+      case 3:
+        return <MeetingConfiguration organizationId={organizationId} />
       default:
         <></>
     }
