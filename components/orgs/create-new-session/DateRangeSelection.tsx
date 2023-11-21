@@ -1,8 +1,5 @@
-import { Fragment, useEffect, useState } from "react"
-import { Dialog, Menu, Transition } from "@headlessui/react"
-import { ExclamationTriangleIcon } from "@heroicons/react/24/outline"
-import { ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, EllipsisHorizontalIcon } from "@heroicons/react/20/solid"
-import { useSelectedLayoutSegment } from "next/navigation";
+import { useEffect, useState } from "react"
+import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/20/solid"
 import { classNames } from "@/lib/utils";
 
 
@@ -81,11 +78,17 @@ const MONTHS = [
   'January', 'Frebruary', 'March', 'April', 'May', 'June',
   'July', 'August', 'September', 'October', 'November', 'December'
 ]
-const DateRangeSelection = () => {
+
+interface Props {
+  startDateValue: string;
+  endDateValue: string;
+  onStartDateChange: (d: string) => void;
+  onEndDateChange: (d: string) => void;
+}
+
+const YearCalendar = ({ startDateValue, endDateValue, onStartDateChange, onEndDateChange }: Props) => {
   const [year, setYear] = useState<number>(new Date().getFullYear())
   const [months, setMonths] = useState<CalendarMonth[]>([])
-  const [startDate, setStartDate] = useState<string>("");
-  const [endDate, setEndDate] = useState<string>("");
 
   useEffect(() => {
     let allMonths: CalendarMonth[] = [];
@@ -101,11 +104,11 @@ const DateRangeSelection = () => {
       ]
     }
 
-    if (startDate) {
-      allMonths = selectDay(startDate, allMonths);
+    if (startDateValue) {
+      allMonths = selectDay(startDateValue, allMonths);
     }
-    if (endDate) {
-      allMonths = selectDay(endDate, allMonths);
+    if (endDateValue) {
+      allMonths = selectDay(endDateValue, allMonths);
     }
 
     setMonths(allMonths);
@@ -114,14 +117,14 @@ const DateRangeSelection = () => {
 
   useEffect(() => {
     let newMonths = [...months];
-    console.log("dates", startDate, endDate);
-    if (startDate) {
-      newMonths = selectDay(startDate, newMonths);
+    console.log("dates", startDateValue, endDateValue);
+    if (startDateValue) {
+      newMonths = selectDay(startDateValue, newMonths);
     } else {
       newMonths = newMonths.map(month => ({
         ...month,
         days: month.days.map(day => {
-          if (day.date !== endDate) {
+          if (day.date !== endDateValue) {
             return {
               ...day,
               isSelected: false
@@ -132,13 +135,13 @@ const DateRangeSelection = () => {
         })
       }))
     }
-    if (endDate) {
-      newMonths = selectDay(endDate, newMonths);
+    if (endDateValue) {
+      newMonths = selectDay(endDateValue, newMonths);
     } else {
       newMonths = newMonths.map(month => ({
         ...month,
         days: month.days.map(day => {
-          if (day.date !== startDate) {
+          if (day.date !== startDateValue) {
             return {
               ...day,
               isSelected: false
@@ -154,8 +157,7 @@ const DateRangeSelection = () => {
       setMonths(newMonths);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [startDate, endDate])
-
+  }, [startDateValue, endDateValue]);
 
   const deselectDay = (d:string, _months: CalendarMonth[] = []) => {
     let newMonths = _months.length > 0 ? [..._months] : [...months];
@@ -225,54 +227,54 @@ const DateRangeSelection = () => {
 
   const handleDayClick = (monthIdx:number, dayIdx: number) => {
     let newMonths: CalendarMonth[] = [];
-    if (startDate) {
-      newMonths = deselectDay(startDate, newMonths);
+    if (startDateValue) {
+      newMonths = deselectDay(startDateValue, newMonths);
     }
-    if (endDate) {
-      newMonths = deselectDay(endDate, newMonths.length ? newMonths : []);
+    if (endDateValue) {
+      newMonths = deselectDay(endDateValue, newMonths.length ? newMonths : []);
     }
 
     const day = months[monthIdx].days[dayIdx];
 
-    if (!startDate && !endDate) { // [,]
-      setStartDate(day.date);
+    if (!startDateValue && !endDateValue) { // [,]
+      onStartDateChange(day.date);
     } else {                      // [s, ] or [, e]
-      if (startDate) {            // [s, ]
-        if (endDate) {            // [s, e]
-          if (new Date(day.date) <= new Date(startDate)) {
-            setStartDate(day.date)
+      if (startDateValue) {            // [s, ]
+        if (endDateValue) {            // [s, e]
+          if (new Date(day.date) <= new Date(startDateValue)) {
+            onStartDateChange(day.date)
           } else {
-            if (new Date(day.date) < new Date(endDate)) {
-              setStartDate(day.date);
+            if (new Date(day.date) < new Date(endDateValue)) {
+              onStartDateChange(day.date);
             } else {
-              setEndDate(day.date);
+              onEndDateChange(day.date);
             }
           }
         } else {                  // [s, ]
-          if (new Date(day.date) <= new Date(startDate)) {
-            setEndDate(startDate);
-            setStartDate(day.date);
+          if (new Date(day.date) <= new Date(startDateValue)) {
+            onEndDateChange(startDateValue);
+            onStartDateChange(day.date);
           } else {
-            setEndDate(day.date);
+            onEndDateChange(day.date);
           }
         }
       } else {                    // [, e]
-        if (startDate) {          // [s, e]
-          if (new Date(day.date) <= new Date(startDate)) {
-            setStartDate(day.date)
+        if (startDateValue) {          // [s, e]
+          if (new Date(day.date) <= new Date(startDateValue)) {
+            onStartDateChange(day.date)
           } else {
-            if (new Date(day.date) < new Date(endDate)) {
-              setStartDate(day.date);
+            if (new Date(day.date) < new Date(endDateValue)) {
+              onStartDateChange(day.date);
             } else {
-              setEndDate(day.date);
+              onEndDateChange(day.date);
             }
           }
         } else {
-          if (new Date(day.date) < new Date(endDate)) {
-            setStartDate(day.date);
+          if (new Date(day.date) < new Date(endDateValue)) {
+            onStartDateChange(day.date);
           } else {
-            setStartDate(endDate);
-            setEndDate(day.date);
+            onStartDateChange(endDateValue);
+            onEndDateChange(day.date);
           }
         }
       }
@@ -282,29 +284,23 @@ const DateRangeSelection = () => {
   }
 
   return (
-    <>
-      <div className="pt-3">
-        <h2 className="text-lg font-semibold leading-7 text-gray-900">Start and End of the session</h2>
-        <p className="mt-1 max-w-2xl text-sm leading-6 text-gray-600">
-          Kindly select, using the calendar, the start and end date of the session
-        </p>
-      </div>
+    <div className="flex flex-col h-[60vh]">
       <div className="flex flex-none items-center justify-between py-4">
         <div>
           <h3 className="flex items-center gap-1 text-base font-semibold leading-6 text-gray-900">
             <time dateTime="2022-01-22" className="sm:hidden">
               {/* Saturday, Jan 22, 2022 */}
-              { startDate }
+              { startDateValue }
             </time>
             <time dateTime="2022-01-22" className="hidden sm:inline">
               {/* Saturday, January 22, 2022 */}
-              { startDate }
+              { startDateValue }
             </time>
-            {startDate && 
+            {startDateValue && 
               <button
                 type="button"
                 className="group relative h-3.5 w-3.5 rounded-sm hover:bg-gray-500/20"
-                onClick={() => setStartDate("")}
+                onClick={() => onStartDateChange("")}
               >
                 <span className="sr-only">Remove</span>
                 <svg viewBox="0 0 14 14" className="h-3.5 w-3.5 stroke-gray-600/50 group-hover:stroke-gray-600/75">
@@ -318,11 +314,11 @@ const DateRangeSelection = () => {
         </div>
         <div>
           <h3 className="flex items-center gap-1 text-base font-semibold leading-6 text-gray-900">
-            {endDate &&
+            {endDateValue &&
               <button
                 type="button"
                 className="group relative h-3.5 w-3.5 rounded-sm hover:bg-gray-500/20"
-                onClick={() => setEndDate("")}
+                onClick={() => onEndDateChange("")}
               >
                 <span className="sr-only">Remove</span>
                 <svg viewBox="0 0 14 14" className="h-3.5 w-3.5 stroke-gray-600/50 group-hover:stroke-gray-600/75">
@@ -333,295 +329,103 @@ const DateRangeSelection = () => {
             }
             <time dateTime="2022-01-22" className="sm:hidden">
               {/* Saturday, Jan 22, 2022 */}
-              { endDate }
+              { endDateValue }
             </time>
             <time dateTime="2022-01-22" className="hidden sm:inline">
               {/* Saturday, January 22, 2022 */}
-              { endDate }
+              { endDateValue }
             </time>
           </h3>
           <p className="mt-1 text-sm text-right text-gray-500">To</p>
         </div>
       </div>
-      <div className="flex-1 rounded-lg border border-gray-200 overflow-y-auto bg-gray-50">
-        <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
-          <h3 className="text-base font-semibold leading-6 text-gray-900">
-            <time dateTime={year.toString()}>{year}</time>
-          </h3>
-          <div className="flex items-center">
-            <div className="relative flex items-center rounded-md bg-white shadow-sm md:items-stretch">
-              <button
-                type="button"
-                className="flex h-9 w-12 items-center justify-center rounded-l-md border-y border-l border-gray-300 pr-1 text-gray-400 hover:text-gray-500 focus:relative md:w-9 md:pr-0 md:hover:bg-gray-50"
-                onClick={() => handlePreviousYearClick()}
-              >
-                <span className="sr-only">Previous year</span>
-                <ChevronLeftIcon className="h-5 w-5" aria-hidden="true" />
-              </button>
-              <button
-                type="button"
-                className="hidden border-y border-gray-300 px-3.5 text-sm font-semibold text-gray-900 hover:bg-gray-50 focus:relative md:block"
-              >
-                Today
-              </button>
-              <span className="relative -mx-px h-5 w-px bg-gray-300 md:hidden" />
-              <button
-                type="button"
-                className="flex h-9 w-12 items-center justify-center rounded-r-md border-y border-r border-gray-300 pl-1 text-gray-400 hover:text-gray-500 focus:relative md:w-9 md:pl-0 md:hover:bg-gray-50"
-                onClick={() => handleNextYearClick()}
-              >
-                <span className="sr-only">Next year</span>
-                <ChevronRightIcon className="h-5 w-5" aria-hidden="true" />
-              </button>
-            </div>
-            {/* <div className="hidden md:ml-4 md:flex md:items-center">
-              <Menu as="div" className="relative">
-                <Menu.Button
-                  type="button"
-                  className="flex items-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
-                >
-                  Year view
-                  <ChevronDownIcon className="-mr-1 h-5 w-5 text-gray-400" aria-hidden="true" />
-                </Menu.Button>
-
-                <Transition
-                  as={Fragment}
-                  enter="transition ease-out duration-100"
-                  enterFrom="transform opacity-0 scale-95"
-                  enterTo="transform opacity-100 scale-100"
-                  leave="transition ease-in duration-75"
-                  leaveFrom="transform opacity-100 scale-100"
-                  leaveTo="transform opacity-0 scale-95"
-                >
-                  <Menu.Items className="absolute right-0 z-10 mt-3 w-36 origin-top-right overflow-hidden rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                    <div className="py-1">
-                      <Menu.Item>
-                        {({ active }) => (
-                          <a
-                            href="#"
-                            className={classNames(
-                              active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
-                              'block px-4 py-2 text-sm'
-                            )}
-                          >
-                            Day view
-                          </a>
-                        )}
-                      </Menu.Item>
-                      <Menu.Item>
-                        {({ active }) => (
-                          <a
-                            href="#"
-                            className={classNames(
-                              active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
-                              'block px-4 py-2 text-sm'
-                            )}
-                          >
-                            Week view
-                          </a>
-                        )}
-                      </Menu.Item>
-                      <Menu.Item>
-                        {({ active }) => (
-                          <a
-                            href="#"
-                            className={classNames(
-                              active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
-                              'block px-4 py-2 text-sm'
-                            )}
-                          >
-                            Month view
-                          </a>
-                        )}
-                      </Menu.Item>
-                      <Menu.Item>
-                        {({ active }) => (
-                          <a
-                            href="#"
-                            className={classNames(
-                              active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
-                              'block px-4 py-2 text-sm'
-                            )}
-                          >
-                            Year view
-                          </a>
-                        )}
-                      </Menu.Item>
-                    </div>
-                  </Menu.Items>
-                </Transition>
-              </Menu>
-              <div className="ml-6 h-6 w-px bg-gray-300" />
-              <button
-                type="button"
-                className="ml-6 rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-              >
-                Add event
-              </button>
-            </div>
-            <Menu as="div" className="relative ml-6 md:hidden">
-              <Menu.Button className="-mx-2 flex items-center rounded-full border border-transparent p-2 text-gray-400 hover:text-gray-500">
-                <span className="sr-only">Open menu</span>
-                <EllipsisHorizontalIcon className="h-5 w-5" aria-hidden="true" />
-              </Menu.Button>
-
-              <Transition
-                as={Fragment}
-                enter="transition ease-out duration-100"
-                enterFrom="transform opacity-0 scale-95"
-                enterTo="transform opacity-100 scale-100"
-                leave="transition ease-in duration-75"
-                leaveFrom="transform opacity-100 scale-100"
-                leaveTo="transform opacity-0 scale-95"
-              >
-                <Menu.Items className="absolute right-0 z-10 mt-3 w-36 origin-top-right divide-y divide-gray-100 overflow-hidden rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                  <div className="py-1">
-                    <Menu.Item>
-                      {({ active }) => (
-                        <a
-                          href="#"
-                          className={classNames(
-                            active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
-                            'block px-4 py-2 text-sm'
-                          )}
-                        >
-                          Create event
-                        </a>
-                      )}
-                    </Menu.Item>
-                  </div>
-                  <div className="py-1">
-                    <Menu.Item>
-                      {({ active }) => (
-                        <a
-                          href="#"
-                          className={classNames(
-                            active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
-                            'block px-4 py-2 text-sm'
-                          )}
-                        >
-                          Go to today
-                        </a>
-                      )}
-                    </Menu.Item>
-                  </div>
-                  <div className="py-1">
-                    <Menu.Item>
-                      {({ active }) => (
-                        <a
-                          href="#"
-                          className={classNames(
-                            active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
-                            'block px-4 py-2 text-sm'
-                          )}
-                        >
-                          Day view
-                        </a>
-                      )}
-                    </Menu.Item>
-                    <Menu.Item>
-                      {({ active }) => (
-                        <a
-                          href="#"
-                          className={classNames(
-                            active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
-                            'block px-4 py-2 text-sm'
-                          )}
-                        >
-                          Week view
-                        </a>
-                      )}
-                    </Menu.Item>
-                    <Menu.Item>
-                      {({ active }) => (
-                        <a
-                          href="#"
-                          className={classNames(
-                            active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
-                            'block px-4 py-2 text-sm'
-                          )}
-                        >
-                          Month view
-                        </a>
-                      )}
-                    </Menu.Item>
-                    <Menu.Item>
-                      {({ active }) => (
-                        <a
-                          href="#"
-                          className={classNames(
-                            active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
-                            'block px-4 py-2 text-sm'
-                          )}
-                        >
-                          Year view
-                        </a>
-                      )}
-                    </Menu.Item>
-                  </div>
-                </Menu.Items>
-              </Transition>
-            </Menu> */}
-          </div>
-        </div>
-        <div className="bg-white h-full overflow-y-auto">
-          <div className="mx-auto grid max-w-3xl grid-cols-1 gap-x-8 gap-y-16 px-4 py-16 sm:grid-cols-2 sm:px-6 xl:max-w-none xl:grid-cols-3 xl:px-8 2xl:grid-cols-4">
-            {months.map((month, monthIdx) => (
-              <section key={month.name} className="text-center">
-                <h2 className="text-sm font-semibold text-gray-900">{month.name}</h2>
-                <div className="mt-6 grid grid-cols-7 text-xs leading-6 text-gray-500">
-                  <div>M</div>
-                  <div>T</div>
-                  <div>W</div>
-                  <div>T</div>
-                  <div>F</div>
-                  <div>S</div>
-                  <div>S</div>
-                </div>
-                <div className="isolate mt-2 grid grid-cols-7 gap-px rounded-lg bg-gray-200 text-sm shadow ring-1 ring-gray-200">
-                  {month.days.map((day, dayIdx) => (
-                    <button
-                      key={day.date}
-                      type="button"
-                      className={classNames(
-                        day.isCurrentMonth ?
-                          `${
-                            day.isSelected 
-                            ? 'bg-[#795548] text-white'
-                            : (new Date(startDate) < new Date(day.date) && new Date(day.date) < new Date(endDate))
-                              ? `bg-[#D7CCC8] text-black`
-                              : 'bg-white text-gray-900'
-                          }`
-                          : 'bg-gray-50 text-gray-400',
-                        dayIdx === 0 && 'rounded-tl-lg',
-                        dayIdx === 6 && 'rounded-tr-lg',
-                        dayIdx === month.days.length - 7 && 'rounded-bl-lg',
-                        dayIdx === month.days.length - 1 && 'rounded-br-lg',
-                        'py-1.5 hover:bg-gray-100 focus:z-10'
-                      )}
-                      disabled={!day.isCurrentMonth}
-                      onClick={() => handleDayClick(monthIdx, dayIdx)}
-                    >
-                      <time
-                        dateTime={day.date}
-                        className={classNames(
-                          day.isToday && 'bg-indigo-600 font-semibold text-white',
-                          'mx-auto flex h-7 w-7 items-center justify-center rounded-full'
-                        )}
-                      >
-                        {day.date.split('-').pop().replace(/^0/, '')}
-                      </time>
-                    </button>
-                  ))}
-                </div>
-              </section>
-            ))}
+      <div className="border border-gray-200 bg-gray-50 rounded-tr-lg rounded-tl-lg flex items-center justify-between border-b border-gray-200 px-6 py-4">
+        <h3 className="text-base font-semibold leading-6 text-gray-900">
+          <time dateTime={year.toString()}>{year}</time>
+        </h3>
+        <div className="flex items-center">
+          <div className="relative flex items-center rounded-md bg-white shadow-sm md:items-stretch">
+            <button
+              type="button"
+              className="flex h-9 w-12 items-center justify-center rounded-l-md border-y border-l border-gray-300 pr-1 text-gray-400 hover:text-gray-500 focus:relative md:w-9 md:pr-0 md:hover:bg-gray-50"
+              onClick={() => handlePreviousYearClick()}
+            >
+              <span className="sr-only">Previous year</span>
+              <ChevronLeftIcon className="h-5 w-5" aria-hidden="true" />
+            </button>
+            <button
+              type="button"
+              className="hidden border-y border-gray-300 px-3.5 text-sm font-semibold text-gray-900 hover:bg-gray-50 focus:relative md:block"
+            >
+              Today
+            </button>
+            <span className="relative -mx-px h-5 w-px bg-gray-300 md:hidden" />
+            <button
+              type="button"
+              className="flex h-9 w-12 items-center justify-center rounded-r-md border-y border-r border-gray-300 pl-1 text-gray-400 hover:text-gray-500 focus:relative md:w-9 md:pl-0 md:hover:bg-gray-50"
+              onClick={() => handleNextYearClick()}
+            >
+              <span className="sr-only">Next year</span>
+              <ChevronRightIcon className="h-5 w-5" aria-hidden="true" />
+            </button>
           </div>
         </div>
       </div>
-    </>
+      <div className="border border-t-0 border-gray-200 rounded-br-lg rounded-bl-lg flex-1 w-full overflow-y-auto mx-auto grid max-w-3xl grid-cols-1 gap-x-8 gap-y-8 px-4 py-8 sm:grid-cols-2 sm:px-6 xl:max-w-none xl:grid-cols-3 xl:px-8 2xl:grid-cols-4">
+        {months.map((month, monthIdx) => (
+          <section key={month.name} className="text-center">
+            <h2 className="text-sm font-semibold text-gray-900">{month.name}</h2>
+            <div className="mt-6 grid grid-cols-7 text-xs leading-6 text-gray-500">
+              <div>M</div>
+              <div>T</div>
+              <div>W</div>
+              <div>T</div>
+              <div>F</div>
+              <div>S</div>
+              <div>S</div>
+            </div>
+            <div className="isolate mt-2 grid grid-cols-7 gap-px rounded-lg bg-gray-200 text-sm shadow ring-1 ring-gray-200">
+              {month.days.map((day, dayIdx) => (
+                <button
+                  key={day.date}
+                  type="button"
+                  className={classNames(
+                    day.isCurrentMonth ?
+                      `${
+                        day.isSelected 
+                        ? 'bg-[#795548] text-white'
+                        : (new Date(startDateValue) < new Date(day.date) && new Date(day.date) < new Date(endDateValue))
+                          ? `bg-[#D7CCC8] text-black`
+                          : 'bg-white text-gray-900'
+                      }`
+                      : 'bg-gray-50 text-gray-400',
+                    dayIdx === 0 && 'rounded-tl-lg',
+                    dayIdx === 6 && 'rounded-tr-lg',
+                    dayIdx === month.days.length - 7 && 'rounded-bl-lg',
+                    dayIdx === month.days.length - 1 && 'rounded-br-lg',
+                    'py-1.5 hover:bg-gray-100 focus:z-10'
+                  )}
+                  disabled={!day.isCurrentMonth}
+                  onClick={() => handleDayClick(monthIdx, dayIdx)}
+                >
+                  <time
+                    dateTime={day.date}
+                    className={classNames(
+                      day.isToday && 'bg-indigo-600 font-semibold text-white',
+                      'mx-auto flex h-7 w-7 items-center justify-center rounded-full'
+                    )}
+                  >
+                    {day.date.split('-').pop().replace(/^0/, '')}
+                  </time>
+                </button>
+              ))}
+            </div>
+          </section>
+        ))}
+      </div>
+    </div>
   )
 }
 
-export default DateRangeSelection;
+export default YearCalendar;
 

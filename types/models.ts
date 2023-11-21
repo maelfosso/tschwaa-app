@@ -42,7 +42,9 @@ export interface Invitation {
 }
 
 export interface Session {
+  id: number;
   startDate: Date;
   endDate: Date;
   inProgress: true;
+  organizationID: number;
 }
