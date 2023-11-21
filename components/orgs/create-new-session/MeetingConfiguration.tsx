@@ -21,6 +21,19 @@ const arrayRange = (start: number, stop: number, step: number) => Array.from(
 
 const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 
+const displayNumber = (n:number) => {
+  if (n.toString().endsWith('1')) {
+    return `${n}st`;
+  }
+  if (n.toString().endsWith('2')) {
+    return `${n}nd`;
+  }
+  if (n.toString().endsWith('3')) {
+    return `${n}rd`;
+  }
+  return `${n}th`;
+}
+
 const MeetingFrequencyDay = () => {
   const [startingAt, setStartingAt] = useState(`${new Date().getHours()}:${new Date().getMinutes()}`);
 
@@ -199,12 +212,12 @@ const MeetingFrequencyMonth = () => {
         <div className={classNames(
           choice === "specific-day" ? "" : "hidden"
         )}>
-          Every <strong>{day}</strong> of the month at <strong>{startingAt}</strong>
+          Every <strong>{displayNumber(day)}</strong> of the month at <strong>{startingAt}</strong>
         </div>
         <div className={classNames(
           choice === "specific-weekday" ? "" : "hidden"
         )}>
-          Every <strong>{week} {dayOfWeek.toLowerCase()}</strong> of the month at <strong>{startingAt}</strong>
+          Every <strong>{displayNumber(week)} {dayOfWeek.toLowerCase()}</strong> of the month at <strong>{startingAt}</strong>
         </div>
       </div>
     </>
