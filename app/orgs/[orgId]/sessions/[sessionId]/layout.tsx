@@ -22,7 +22,7 @@ const getOrg = async (orgId: number) => {
 export default async function Page({ params: { orgId }, children }: PageProps) {
   const org = await getOrg(orgId);
 
-  return <OrganizationLayout org={org}>{ children }</OrganizationLayout>
+  return <SessionLayout org={org}>{ children }</SessionLayout>
 }
 
 

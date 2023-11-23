@@ -1,10 +1,7 @@
-import { Fragment, useEffect, useRef, useState } from "react"
-import { Dialog, Menu, Transition } from "@headlessui/react"
+import { Fragment, useState } from "react"
+import { Dialog, Transition } from "@headlessui/react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useQueryString } from "@/lib/hooks";
-import YearCalendar from "./create-new-session/DateRangeSelection"
-import MeetingConfiguration from "./create-new-session/MeetingConfiguration";
-import MembersSelection from "./create-new-session/MembersSelection";
+import YearCalendar from "./setup-session/DateRangeSelection"
 import { createNewSession } from "@/services/organizations";
 import { useSession } from "next-auth/react";
 
