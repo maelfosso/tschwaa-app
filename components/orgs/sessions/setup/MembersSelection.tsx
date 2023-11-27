@@ -2,26 +2,18 @@ import InviteMembers from "@/components/shared/InviteMembers";
 import { useQueryString } from "@/lib/hooks";
 import { classNames } from "@/lib/utils";
 import { OrganizationMember } from "@/types/models";
-import customAxiosInstance from "@/utils/axios";
+import customAxiosInstance from "@/lib/axios";
 import { useSession } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
-
-// const members = [
-//   { name: 'Lindsay Walton', title: 'Front-end Developer', phone: '699001122' },
-//   // More members...
-// ]
+import { getOrganizationMembers, saveSessionMembers } from "@/services/organizations";
 
 interface MembersSelectionProps {
   organizationId: number;
+  sessionId: number;
 }
 
-const getOrganizationMembers = async (orgId: number, token: string) => {
-  const data = await customAxiosInstance.get<OrganizationMember[]>(`orgs/${orgId}/members`, { token: token });
-  return data;
-}
-
-const MembersSelection = ({ organizationId }: MembersSelectionProps) => {
+const MembersSelection = ({ organizationId, sessionId }: MembersSelectionProps) => {
   const { data: authSession } = useSession();
   const pathname = usePathname();
   const router = useRouter();
@@ -57,6 +49,19 @@ const MembersSelection = ({ organizationId }: MembersSelectionProps) => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const updateSessionMembers = useCallback(async () => {
+    const data = await saveSessionMembers(organizationId, sessionId, selectedMembers, authSession?.accessToken);
+    console.log('update session members', data);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [organizationId, sessionId]);
+
+  useEffect(() => {
+    console.log("save the selected members for this sess", selectedMembers);
+    updateSessionMembers()
+    .catch(console.error);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedMembers]);
+
   const toggleAll = () => {
     setSelectedMembers(checked || indeterminate ? [] : members)
     setChecked(!checked && !indeterminate)
@@ -70,10 +75,10 @@ const MembersSelection = ({ organizationId }: MembersSelectionProps) => {
 
   return (
     <>
-      <div className="pt-3 sm:flex sm:items-center">
+      <div className="mb-8 pt-3 sm:flex sm:items-center">
         <div className="sm:flex-auto">
-          <h1 className="text-base font-semibold leading-6 text-gray-900">Members</h1>
-          <p className="mt-2 text-sm text-gray-700">
+          <h2 className="text-lg font-semibold leading-6 text-gray-900">Members</h2>
+          <p className="mt-2 text-base text-gray-700">
             Select the members you want in this session or Invite new members to join your organization.
           </p>
         </div>
@@ -87,7 +92,7 @@ const MembersSelection = ({ organizationId }: MembersSelectionProps) => {
           </button>
         </div>
       </div>
-      <div className="mt-8 flow-root overflow-y-auto">
+      <div className="flow-root overflow-y-auto">
         <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
           <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
             <table className="min-w-full table-fixed divide-y divide-gray-300">

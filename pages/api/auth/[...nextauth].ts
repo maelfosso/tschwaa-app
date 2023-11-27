@@ -2,7 +2,7 @@ import NextAuth, { NextAuthOptions} from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { cookies } from "next/headers";
 import { signIn } from "../../../services/auth";
-import customAxiosInstance from "../../../utils/axios";
+import customAxiosInstance from "../../../lib/axios";
 import { SignInInputs } from "../../../types/requests";
 
 export const authOptions: NextAuthOptions = {

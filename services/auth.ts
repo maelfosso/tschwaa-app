@@ -1,7 +1,7 @@
-import customAxiosInstance from "../utils/axios";
-import { API_AUTH_SIGN_IN, API_AUTH_SIGN_UP } from "../utils/constants";
+import customAxiosInstance from "../lib/axios";
+import { API_AUTH_SIGN_IN, API_AUTH_SIGN_UP } from "../lib/constants";
 import { SignInInputs, SignUpInputs } from "../types/requests";
-import { fromJson, toJson } from "@/utils/utils";
+import { fromJson, toJson } from "@/lib/utils";
 
 export const signUp = async (inputs: SignUpInputs) => {
   const jsonInputs = toJson(inputs);

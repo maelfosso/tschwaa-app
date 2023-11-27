@@ -36,7 +36,7 @@ const RootLayout = async ({ children }: LayoutProps ) => {
 
   return (
     <html className="h-full">
-      <body className="h-full">
+      <body className="h-full flex flex-col">
         <NextAuthProvider>
           <Layout session={session}>{ children }</Layout>
         </NextAuthProvider>

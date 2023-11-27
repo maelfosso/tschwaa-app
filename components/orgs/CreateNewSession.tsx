@@ -1,7 +1,7 @@
 import { Fragment, useState } from "react"
 import { Dialog, Transition } from "@headlessui/react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import YearCalendar from "./setup-session/DateRangeSelection"
+import YearCalendar from "./sessions/setup/DateRangeSelection"
 import { createNewSession } from "@/services/organizations";
 import { useSession } from "next-auth/react";
 
@@ -11,10 +11,6 @@ interface CreateNewSessionProps {
 
 const CreateNewSession = ({ organizationId }: CreateNewSessionProps) => {
   const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams()!;
-
-  // const { createQueryString } = useQueryString();
 
   const [open, setOpen] = useState(true);
 
@@ -22,45 +18,6 @@ const CreateNewSession = ({ organizationId }: CreateNewSessionProps) => {
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
   const [error, setError] = useState<string>("");
-
-  // useEffect(() => {
-  //   if (searchParams.has('step')) {
-  //     setStep(+searchParams.get('step')!)
-  //   } else {
-  //     router.push(pathname + '?' + createQueryString('step', '1'))
-  //   }
-  // // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [searchParams])
-
-  // const handleNextClick = () => {
-  //   if (step < 3) {
-  //     router.push(pathname + '?' + createQueryString('step', (step + 1).toString()))
-  //   }
-  // }
-
-  // const handlePreviousClick = () => {
-  //   if (step > 1) {
-
-  //     router.push(pathname + '?' + createQueryString('step', (step - 1).toString()))
-  //   }
-  // }
-
-  // const renderStep = () => {
-  //   switch (step) {
-  //     case 1:
-  //       return <YearCalendar
-  //         organizationId={organizationId}
-  //         onNext={handleNextClick}
-  //         onPrevious={handlePreviousClick}
-  //       />
-  //     case 2:
-  //       return <MembersSelection organizationId={organizationId} />
-  //     case 3:
-  //       return <MeetingConfiguration organizationId={organizationId} />
-  //     default:
-  //       <></>
-  //   }
-  // }
 
   const isValid = () => {
     console.log('is-valid ', startDate && endDate);

@@ -1,6 +1,6 @@
 import { sendMultipleWhatsappInvitation } from "@/services/organizations";
 import { Member } from "@/types/models";
-import { fromJson } from "@/utils/utils";
+import { fromJson } from "@/lib/utils";
 import { Dialog, Transition } from "@headlessui/react";
 import { CheckCircleIcon, ExclamationCircleIcon, PhoneIcon, PlusIcon, XMarkIcon } from "@heroicons/react/20/solid";
 import { useSession } from "next-auth/react";

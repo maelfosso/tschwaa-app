@@ -2,8 +2,8 @@
 
 import { getErrorMessage } from "@/helpers/error";
 import { Adhesion, Invitation, Member, Organization } from "@/types/models";
-import customAxiosInstance from "@/utils/axios";
-import { AUTH_SIGN_IN } from "@/utils/constants";
+import customAxiosInstance from "@/lib/axios";
+import { AUTH_SIGN_IN } from "@/lib/constants";
 import { Dialog, Transition } from "@headlessui/react";
 import { CheckCircleIcon, CheckIcon, XCircleIcon, XMarkIcon } from "@heroicons/react/20/solid";
 import { useSession } from "next-auth/react";

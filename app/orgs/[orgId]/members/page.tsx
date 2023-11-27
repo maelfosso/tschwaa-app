@@ -2,7 +2,7 @@
 import MembersPage from "@/components/orgs/members/members-page";
 import { authOptions } from "@/pages/api/auth/[...nextauth]";
 import { Member, OrganizationMember } from "@/types/models";
-import customAxiosInstance from "@/utils/axios";
+import customAxiosInstance from "@/lib/axios";
 import { getServerSession } from "next-auth";
 
 const getMembers = async (orgId: number) => {

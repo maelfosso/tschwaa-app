@@ -4,7 +4,7 @@ import { Dialog, Transition } from "@headlessui/react";
 import { ExclamationCircleIcon, PaperAirplaneIcon, PencilSquareIcon, CheckCircleIcon, PhoneIcon, PlusIcon, TrashIcon, UserPlusIcon, XMarkIcon } from "@heroicons/react/20/solid";
 import { Fragment, useEffect, useState } from "react";
 import { sendMultipleWhatsappInvitation } from "../../../services/organizations";
-import { fromJson } from "../../../utils/utils";
+import { fromJson } from "../../../lib/utils";
 import { useSession } from "next-auth/react";
 import { Member, OrganizationMember } from "@/types/models";
 import { PhoneNumberInput } from "@/components/PhoneNumberInput";

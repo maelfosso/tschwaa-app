@@ -8,3 +8,4 @@ export const API_ORG_MEMBERS_INVITE = (orgId: number, reInvitation: boolean = fa
 
 export const API_ORG_CURRENT_SESSION = (orgId: number) => `/orgs/${orgId}/sessions/current`;
 export const API_ORG_CREATE_SESSION = (orgId: number) => `/orgs/${orgId}/sessions`;
+export const API_ORG_SETUP_SESSION_MEMBERS = (orgId: number, sessionId: number) => `/orgs/${orgId}/sessions/${sessionId}/members`;

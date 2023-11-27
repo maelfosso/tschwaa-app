@@ -1,4 +1,4 @@
-import Countries from "@/utils/countries"
+import Countries from "@/lib/countries"
 import React, { useState } from "react"
 
 export const PhoneNumberInput = ({

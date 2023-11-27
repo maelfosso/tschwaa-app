@@ -1,6 +1,6 @@
 import Join from "@/components/join/join";
 import { authOptions } from "@/pages/api/auth/[...nextauth]";
-import customAxiosInstance from "@/utils/axios";
+import customAxiosInstance from "@/lib/axios";
 import { getServerSession } from "next-auth";
 
 type Props = {

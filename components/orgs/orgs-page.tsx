@@ -7,7 +7,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Fragment, useState } from "react";
 import { getErrorMessage } from "../../helpers/error";
-import customAxiosInstance from "../../utils/axios";
+import customAxiosInstance from "../../lib/axios";
 
 interface OrgsProps {
   orgs: Organization[]

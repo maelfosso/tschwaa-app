@@ -7,7 +7,7 @@ import Router from "next/router";
 import React, { useState } from 'react';
 import { getErrorMessage } from "../../helpers/error";
 import { signUp } from "../../services/auth";
-import { AUTH_SIGN_IN } from "../../utils/constants";
+import { AUTH_SIGN_IN } from "../../lib/constants";
 import { SignUpInputs } from "../../types/requests";
 import { useRouter } from "next/navigation";
 

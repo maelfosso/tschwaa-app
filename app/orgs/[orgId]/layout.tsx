@@ -2,7 +2,7 @@ import SessionLayout from "@/components/orgs/layouts/SessionLayout";
 import OrganizationLayout from "@/components/orgs/layouts/OrganizationLayout";
 import { authOptions } from "@/pages/api/auth/[...nextauth]";
 import { Organization } from "@/types/models";
-import customAxiosInstance from "@/utils/axios";
+import customAxiosInstance from "@/lib/axios";
 import { getServerSession } from "next-auth";
 
 interface PageProps {

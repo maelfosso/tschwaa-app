@@ -2,7 +2,8 @@ import React from "react";
 import { getServerSession } from "next-auth";
 import { Organization } from "@/types/models";
 import { authOptions } from "@/pages/api/auth/[...nextauth]";
-import customAxiosInstance from "@/utils/axios";
+import customAxiosInstance from "@/lib/axios";
+import SetupSession from "@/components/orgs/sessions/SetupSession";
 
 const getSession = async (orgId: number, sessionId: number) => {
   const session = await getServerSession(authOptions);
@@ -16,12 +17,10 @@ interface PageProps {
     orgId: number;
     sessionId: number;
   },
-  children: React.ReactNode
+  // children: React.ReactNode
 }
-export default async function Page({ params: { orgId, sessionId }, children }: PageProps) {
+export default async function Page({ params: { orgId, sessionId } }: PageProps) {
   // const orgs = await getSession(orgId, sessionId);
 
-  return <>
-    <h1>Session : {orgId} - {sessionId}</h1>
-  </>
+  return <SetupSession organizationId={orgId} sessionId={sessionId} />;
 }

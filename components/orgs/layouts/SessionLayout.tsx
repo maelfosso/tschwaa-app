@@ -210,8 +210,8 @@ const SessionLayout = ({ children, org }: OrganizationLayoutProps) => {
     <>
       <SessionSidebar show={!pathname?.endsWith("setup")} />
 
-      <div className="">
-        <h1>SESSSIONNNNN XXXXXX</h1>
+      <div className="p-6 w-full">
+        { children }
       </div>
     </>
   )

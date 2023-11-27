@@ -20,6 +20,8 @@ export interface Adhesion {
 
 export type OrganizationMember = Member & Omit<Adhesion, "id">;
 
+export type MemberContribution = Member & { amount: number };
+
 export interface JustInvitedMembers {
   phone: string;
   invited: boolean;
