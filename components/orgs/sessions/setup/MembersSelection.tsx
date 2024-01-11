@@ -1,12 +1,12 @@
 import InviteMembers from "@/components/shared/InviteMembers";
 import { useQueryString } from "@/lib/hooks";
 import { classNames } from "@/lib/utils";
-import { OrganizationMember } from "@/types/models";
+import { MemberOfSession, OrganizationMember } from "@/types/models";
 import customAxiosInstance from "@/lib/axios";
 import { useSession } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { getOrganizationMembers, saveSessionMembers } from "@/services/organizations";
+import { getMembersOfSession, getOrganizationMembers, saveSessionMembers } from "@/services/organizations";
 
 interface MembersSelectionProps {
   organizationId: number;
@@ -23,8 +23,8 @@ const MembersSelection = ({ organizationId, sessionId }: MembersSelectionProps) 
   const checkbox = useRef()
   const [checked, setChecked] = useState(false)
   const [indeterminate, setIndeterminate] = useState(false)
-  const [members, setMembers] = useState<OrganizationMember[]>([]);
-  const [selectedMembers, setSelectedMembers] = useState<OrganizationMember[]>([])
+  const [members, setMembers] = useState<MemberOfSession[]>([]);
+  const [selectedMembers, setSelectedMembers] = useState<MemberOfSession[]>([])
   const [openInviteMembersUI, setOpenInviteMembersUI] = useState<boolean>(false);
 
   useLayoutEffect(() => {
@@ -32,37 +32,33 @@ const MembersSelection = ({ organizationId, sessionId }: MembersSelectionProps) 
     setChecked(selectedMembers.length === members.length)
     setIndeterminate(isIndeterminate)
     checkbox.current.indeterminate = isIndeterminate
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedMembers]);
+  }, [members.length, selectedMembers]);
 
-  const fetchOrganizationMembers = useCallback(async () => {
-    const data = await getOrganizationMembers(organizationId, authSession?.accessToken!);
-    console.log("members ", data);
-    setMembers(data as OrganizationMember[]);
-    setSelectedMembers(data as OrganizationMember[]);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [organizationId]);
+  const fetchMembersOfSession = useCallback(async () => {
+    const data = await getMembersOfSession(organizationId, sessionId, authSession?.accessToken!) as MemberOfSession[];
+    console.log("members of session: ", data);
+    setMembers(data);
+    setSelectedMembers(data.filter(d => d.id && d.sessionId)); // select only those having MoS information
+  }, [authSession?.accessToken, organizationId]);
 
   useEffect(() => {
-    fetchOrganizationMembers()
+    fetchMembersOfSession()
       .catch(console.error);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [fetchMembersOfSession]);
 
   const updateSessionMembers = useCallback(async () => {
+    console.log('into updatesessionmembers callback: ', selectedMembers);
     const data = await saveSessionMembers(organizationId, sessionId, selectedMembers, authSession?.accessToken);
     console.log('update session members', data);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [organizationId, sessionId]);
+  }, [authSession?.accessToken, organizationId, selectedMembers, sessionId]);
 
-  useEffect(() => {
-    console.log("save the selected members for this sess", selectedMembers);
-    updateSessionMembers()
-    .catch(console.error);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedMembers]);
+  // useEffect(() => {
+  //   updateSessionMembers()
+  //   .catch(console.error);
+  // }, [updateSessionMembers]);
 
   const toggleAll = () => {
+    console.log('toggleAll', checked, indeterminate);
     setSelectedMembers(checked || indeterminate ? [] : members)
     setChecked(!checked && !indeterminate)
     setIndeterminate(false)
