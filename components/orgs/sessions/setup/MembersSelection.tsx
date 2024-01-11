@@ -6,7 +6,7 @@ import customAxiosInstance from "@/lib/axios";
 import { useSession } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { getMembersOfSession, getOrganizationMembers, saveSessionMembers } from "@/services/organizations";
+import { getMembersOfSession, removeMemberFromSession, saveSessionMembers } from "@/services/organizations";
 
 interface MembersSelectionProps {
   organizationId: number;
@@ -62,6 +62,43 @@ const MembersSelection = ({ organizationId, sessionId }: MembersSelectionProps) 
     setSelectedMembers(checked || indeterminate ? [] : members)
     setChecked(!checked && !indeterminate)
     setIndeterminate(false)
+  }
+
+  const handleAddMemberIntoSession = (member: MemberOfSession) => {
+    // setSelectedMembers(
+    //   e.target.checked
+    //     ? [...selectedMembers, member] --- This one
+    //     : selectedMembers.filter((p) => p !== member)
+    // )
+  }
+
+  const handleRemoveMemberFromSession = async (member: MemberOfSession) => {
+    const response = await removeMemberFromSession(
+      organizationId,
+      sessionId,
+      member.id,
+      authSession?.accessToken
+    )
+    console.log('handleRemoveMemberFromSession: ', member.id, response);
+    if (response) {
+      setSelectedMembers(
+        selectedMembers.filter((m) => m.id !== member.id)
+      )
+
+      // TODO display Notification Success
+    } {
+      // TODO display Notification Error
+    }
+  }
+
+  const handleToggleMember = (checked: boolean, member: MemberOfSession) => {
+    console.log('toggleMember: ', checked, member);
+
+    if (checked) {  // add
+      handleAddMemberIntoSession(member);
+    } else {  // remove
+      handleRemoveMemberFromSession(member)
+    }
   }
 
   const handleInviteMembersClick = () => {
@@ -129,13 +166,7 @@ const MembersSelection = ({ organizationId, sessionId }: MembersSelectionProps) 
                         className="absolute left-4 top-1/2 -mt-2 h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
                         value={member.phone}
                         checked={selectedMembers.includes(member)}
-                        onChange={(e) =>
-                          setSelectedMembers(
-                            e.target.checked
-                              ? [...selectedMembers, member]
-                              : selectedMembers.filter((p) => p !== member)
-                          )
-                        }
+                        onChange={(e) => handleToggleMember(e.target.checked, member)}
                       />
                     </td>
                     <td

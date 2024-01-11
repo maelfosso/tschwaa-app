@@ -39,6 +39,16 @@ export const getMembersOfSession = async (orgId: number, sessionId: number, toke
   return data;
 }
 
+export const addMemberIntoSession = async (orgId: number, sessionId: number, member: MemberOfSession, token: string) => {
+  const data = await customAxiosInstance.post<MemberOfSession[]>(API_ORG_SETUP_SESSION_MEMBERS(orgId, sessionId), { token: token });
+  return data;
+}
+
+export const removeMemberFromSession = async (orgId: number, sessionId: number, mosId: number, token: string) => {
+  const data = await customAxiosInstance.delete<MemberOfSession[]>(`${API_ORG_SETUP_SESSION_MEMBERS(orgId, sessionId)}/${mosId}`, { token: token });
+  return data;
+}
+
 export const saveSessionMembers = async (orgId: number, sessionId: number, members: OrganizationMember[], token: string) => {
   const jsonInputs = toJson({
     members
