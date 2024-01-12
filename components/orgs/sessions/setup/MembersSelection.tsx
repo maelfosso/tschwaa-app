@@ -1,12 +1,11 @@
 import InviteMembers from "@/components/shared/InviteMembers";
 import { useQueryString } from "@/lib/hooks";
 import { classNames } from "@/lib/utils";
-import { MemberOfSession, OrganizationMember } from "@/types/models";
-import customAxiosInstance from "@/lib/axios";
+import { MemberOfSession } from "@/types/models";
 import { useSession } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { getMembersOfSession, removeMemberFromSession, saveSessionMembers } from "@/services/organizations";
+import { addMemberToSession, getMembersOfSession, removeMemberFromSession, saveSessionMembers } from "@/services/organizations";
 
 interface MembersSelectionProps {
   organizationId: number;
@@ -64,12 +63,30 @@ const MembersSelection = ({ organizationId, sessionId }: MembersSelectionProps) 
     setIndeterminate(false)
   }
 
-  const handleAddMemberIntoSession = (member: MemberOfSession) => {
-    // setSelectedMembers(
-    //   e.target.checked
-    //     ? [...selectedMembers, member] --- This one
-    //     : selectedMembers.filter((p) => p !== member)
-    // )
+  const handleAddMemberToSession = async (member: MemberOfSession) => {
+    const response = await addMemberToSession(
+      organizationId,
+      sessionId,
+      member.membershipId,
+      authSession?.accessToken
+    )
+    if (response) {
+      member.id = response;
+      const nextMembers = [...members];
+      let selectedMember = nextMembers.find(
+        m => m.membershipId === member.membershipId
+      );
+      if (selectedMember) {
+        selectedMember.id = response;
+        selectedMember.sessionId = sessionId;
+
+
+        setSelectedMembers(
+          [...selectedMembers, selectedMember]
+        )
+      }
+      setMembers(nextMembers);
+    }
   }
 
   const handleRemoveMemberFromSession = async (member: MemberOfSession) => {
@@ -95,7 +112,7 @@ const MembersSelection = ({ organizationId, sessionId }: MembersSelectionProps) 
     console.log('toggleMember: ', checked, member);
 
     if (checked) {  // add
-      handleAddMemberIntoSession(member);
+      handleAddMemberToSession(member);
     } else {  // remove
       handleRemoveMemberFromSession(member)
     }

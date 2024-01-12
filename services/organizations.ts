@@ -39,8 +39,11 @@ export const getMembersOfSession = async (orgId: number, sessionId: number, toke
   return data;
 }
 
-export const addMemberIntoSession = async (orgId: number, sessionId: number, member: MemberOfSession, token: string) => {
-  const data = await customAxiosInstance.post<MemberOfSession[]>(API_ORG_SETUP_SESSION_MEMBERS(orgId, sessionId), { token: token });
+export const addMemberToSession = async (orgId: number, sessionId: number, membershipId: number, token: string) => {
+  const jsonInputs = toJson({
+    membershipId
+  });
+  const data = await customAxiosInstance.post<number>(API_ORG_SETUP_SESSION_MEMBERS(orgId, sessionId), jsonInputs, { token: token });
   return data;
 }
 
