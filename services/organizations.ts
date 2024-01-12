@@ -52,10 +52,9 @@ export const removeMemberFromSession = async (orgId: number, sessionId: number, 
   return data;
 }
 
-export const saveSessionMembers = async (orgId: number, sessionId: number, members: OrganizationMember[], token: string) => {
+export const updateAllMembersOfSession = async (orgId: number, sessionId: number, membershipIds: number[], token: string) => {
   const jsonInputs = toJson({
-    members
+    membershipIds
   })
-  console.log(jsonInputs);
-  return await customAxiosInstance.patch<boolean>(API_ORG_SETUP_SESSION_MEMBERS(orgId, sessionId), jsonInputs, { token });
+  return await customAxiosInstance.patch<MemberOfSession[]>(API_ORG_SETUP_SESSION_MEMBERS(orgId, sessionId), jsonInputs, { token });
 }

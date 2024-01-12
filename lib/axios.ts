@@ -49,7 +49,7 @@ class CustomAxiosInstance {
     };
     try {
       const { data } = await this.instance.post<T>(url, inputs, config);
-      return data as T;
+      return fromJson(data) as T;
     } catch (error) {
       throw new Error(axios.isAxiosError(error) ? catchAxiosError(error).error : "An unexpected error occurred");
     }
@@ -62,7 +62,7 @@ class CustomAxiosInstance {
     };
     try {
       const { data } = await this.instance.patch<T>(url, inputs, config);
-      return data as T;
+      return fromJson(data) as T;
     } catch (error) {
       throw new Error(axios.isAxiosError(error) ? catchAxiosError(error).error : "An unexpected error occurred");
     }
@@ -75,7 +75,7 @@ class CustomAxiosInstance {
     };
     try {
       const { data } = await this.instance.delete<T>(url, config);
-      return data as T;
+      return fromJson(data) as T;
     } catch (error) {
       throw new Error(axios.isAxiosError(error) ? catchAxiosError(error).error : "An unexpected error occurred");
     }

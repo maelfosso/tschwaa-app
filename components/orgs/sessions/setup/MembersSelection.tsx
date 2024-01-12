@@ -5,7 +5,7 @@ import { MemberOfSession } from "@/types/models";
 import { useSession } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { addMemberToSession, getMembersOfSession, removeMemberFromSession, saveSessionMembers } from "@/services/organizations";
+import { addMemberToSession, getMembersOfSession, removeMemberFromSession, updateAllMembersOfSession } from "@/services/organizations";
 
 interface MembersSelectionProps {
   organizationId: number;
@@ -26,6 +26,11 @@ const MembersSelection = ({ organizationId, sessionId }: MembersSelectionProps) 
   const [selectedMembers, setSelectedMembers] = useState<MemberOfSession[]>([])
   const [openInviteMembersUI, setOpenInviteMembersUI] = useState<boolean>(false);
 
+  useEffect(() => {
+    console.log('updated selected members: ', members);
+    setSelectedMembers(members.filter(d => d.id && d.sessionId)); // select only those having MoS information
+  }, [members]);
+
   useLayoutEffect(() => {
     const isIndeterminate = selectedMembers.length > 0 && selectedMembers.length < members.length
     setChecked(selectedMembers.length === members.length)
@@ -37,7 +42,7 @@ const MembersSelection = ({ organizationId, sessionId }: MembersSelectionProps) 
     const data = await getMembersOfSession(organizationId, sessionId, authSession?.accessToken!) as MemberOfSession[];
     console.log("members of session: ", data);
     setMembers(data);
-    setSelectedMembers(data.filter(d => d.id && d.sessionId)); // select only those having MoS information
+    // setSelectedMembers(data.filter(d => d.id && d.sessionId)); // select only those having MoS information
   }, [authSession?.accessToken, organizationId]);
 
   useEffect(() => {
@@ -45,22 +50,43 @@ const MembersSelection = ({ organizationId, sessionId }: MembersSelectionProps) 
       .catch(console.error);
   }, [fetchMembersOfSession]);
 
-  const updateSessionMembers = useCallback(async () => {
-    console.log('into updatesessionmembers callback: ', selectedMembers);
-    const data = await saveSessionMembers(organizationId, sessionId, selectedMembers, authSession?.accessToken);
-    console.log('update session members', data);
-  }, [authSession?.accessToken, organizationId, selectedMembers, sessionId]);
-
-  // useEffect(() => {
-  //   updateSessionMembers()
-  //   .catch(console.error);
-  // }, [updateSessionMembers]);
-
-  const toggleAll = () => {
+  const handleToggleAll = async () => {
     console.log('toggleAll', checked, indeterminate);
-    setSelectedMembers(checked || indeterminate ? [] : members)
-    setChecked(!checked && !indeterminate)
-    setIndeterminate(false)
+    // TODO: replace the toggle all checkbox by a loading spinner : we sent the request
+
+    const concernedMembers = checked || indeterminate ? [] : members
+    const response = await updateAllMembersOfSession(
+      organizationId,
+      sessionId,
+      concernedMembers.map(m => m.membershipId),
+      authSession?.accessToken
+    );
+
+    if (response) {
+      const nextMembers = [...members].map((member) => {
+        const found = response.find(
+          m => m.membershipId === member.membershipId
+        );
+
+        if (found) {
+          return {
+            ...member,
+            id: found.id,
+            sessionId: found.sessionId
+          }
+        } else {
+          return {
+            ...member,
+            id: NaN,
+            sessionId: NaN
+          }
+        }
+      });
+      setMembers(nextMembers);
+    }
+    // setSelectedMembers(checked || indeterminate ? [] : members)
+    // setChecked(!checked && !indeterminate)
+    // setIndeterminate(false)
   }
 
   const handleAddMemberToSession = async (member: MemberOfSession) => {
@@ -78,12 +104,12 @@ const MembersSelection = ({ organizationId, sessionId }: MembersSelectionProps) 
       );
       if (selectedMember) {
         selectedMember.id = response;
-        selectedMember.sessionId = sessionId;
+        selectedMember.sessionId = +sessionId;
 
 
-        setSelectedMembers(
-          [...selectedMembers, selectedMember]
-        )
+        // setSelectedMembers(
+        //   [...selectedMembers, selectedMember]
+        // )
       }
       setMembers(nextMembers);
     }
@@ -98,9 +124,19 @@ const MembersSelection = ({ organizationId, sessionId }: MembersSelectionProps) 
     )
     console.log('handleRemoveMemberFromSession: ', member.id, response);
     if (response) {
-      setSelectedMembers(
-        selectedMembers.filter((m) => m.id !== member.id)
-      )
+      // member.id = response;
+      const nextMembers = [...members];
+      let selectedMember = nextMembers.find(
+        m => m.membershipId === member.membershipId
+      );
+      if (selectedMember) {
+        selectedMember.id = NaN;
+        selectedMember.sessionId = NaN;
+      }
+      // setSelectedMembers(
+      //   selectedMembers.filter((m) => m.id !== member.id)
+      // )
+      setMembers(nextMembers);
 
       // TODO display Notification Success
     } {
@@ -154,7 +190,7 @@ const MembersSelection = ({ organizationId, sessionId }: MembersSelectionProps) 
                       className="absolute left-4 top-1/2 -mt-2 h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
                       ref={checkbox}
                       checked={checked}
-                      onChange={toggleAll}
+                      onChange={handleToggleAll}
                     />
                   </th>
                   <th scope="col" className="min-w-[12rem] py-3.5 pr-3 text-left text-sm font-semibold text-gray-900">
