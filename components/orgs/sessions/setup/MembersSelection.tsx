@@ -27,7 +27,6 @@ const MembersSelection = ({ organizationId, sessionId }: MembersSelectionProps) 
   const [openInviteMembersUI, setOpenInviteMembersUI] = useState<boolean>(false);
 
   useEffect(() => {
-    console.log('updated selected members: ', members);
     setSelectedMembers(members.filter(d => d.id && d.sessionId)); // select only those having MoS information
   }, [members]);
 
@@ -40,9 +39,7 @@ const MembersSelection = ({ organizationId, sessionId }: MembersSelectionProps) 
 
   const fetchMembersOfSession = useCallback(async () => {
     const data = await getMembersOfSession(organizationId, sessionId, authSession?.accessToken!) as MemberOfSession[];
-    console.log("members of session: ", data);
     setMembers(data);
-    // setSelectedMembers(data.filter(d => d.id && d.sessionId)); // select only those having MoS information
   }, [authSession?.accessToken, organizationId]);
 
   useEffect(() => {
@@ -84,9 +81,6 @@ const MembersSelection = ({ organizationId, sessionId }: MembersSelectionProps) 
       });
       setMembers(nextMembers);
     }
-    // setSelectedMembers(checked || indeterminate ? [] : members)
-    // setChecked(!checked && !indeterminate)
-    // setIndeterminate(false)
   }
 
   const handleAddMemberToSession = async (member: MemberOfSession) => {
@@ -105,11 +99,6 @@ const MembersSelection = ({ organizationId, sessionId }: MembersSelectionProps) 
       if (selectedMember) {
         selectedMember.id = response;
         selectedMember.sessionId = +sessionId;
-
-
-        // setSelectedMembers(
-        //   [...selectedMembers, selectedMember]
-        // )
       }
       setMembers(nextMembers);
     }
@@ -124,7 +113,6 @@ const MembersSelection = ({ organizationId, sessionId }: MembersSelectionProps) 
     )
     console.log('handleRemoveMemberFromSession: ', member.id, response);
     if (response) {
-      // member.id = response;
       const nextMembers = [...members];
       let selectedMember = nextMembers.find(
         m => m.membershipId === member.membershipId
@@ -133,9 +121,6 @@ const MembersSelection = ({ organizationId, sessionId }: MembersSelectionProps) 
         selectedMember.id = NaN;
         selectedMember.sessionId = NaN;
       }
-      // setSelectedMembers(
-      //   selectedMembers.filter((m) => m.id !== member.id)
-      // )
       setMembers(nextMembers);
 
       // TODO display Notification Success
@@ -147,9 +132,9 @@ const MembersSelection = ({ organizationId, sessionId }: MembersSelectionProps) 
   const handleToggleMember = (checked: boolean, member: MemberOfSession) => {
     console.log('toggleMember: ', checked, member);
 
-    if (checked) {  // add
+    if (checked) {
       handleAddMemberToSession(member);
-    } else {  // remove
+    } else {
       handleRemoveMemberFromSession(member)
     }
   }
